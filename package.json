@@ -5,7 +5,7 @@
   "main": "lib/index.js",
   "types": "lib/index.d.ts",
   "scripts": {
-    "test": "jest --config jestconfig.json",
+    "test": "yarn ts-mocha -p tsconfig.json \"src/**/*.spec.ts\"",
     "build": "tsc",
     "format": "prettier --write \"src/**/*.ts\" \"src/**/*.js\"",
     "lint": "tslint -p tsconfig.json",
@@ -37,13 +37,14 @@
   "author": "jsamchineme",
   "devDependencies": {
     "@types/bluebird": "^3.5.27",
+    "@types/chai": "^4.3.5",
     "@types/graphql": "^14.2.1",
-    "@types/jest": "^24.0.15",
+    "@types/mocha": "^10.0.1",
     "@types/validator": "^10.11.1",
+    "chai": "^4.3.7",
     "codecov": "^3.5.0",
-    "jest": "^24.8.0",
     "prettier": "^1.18.2",
-    "ts-jest": "^24.0.2",
+    "ts-mocha": "^10.0.0",
     "tslint": "^5.17.0",
     "tslint-config-prettier": "^1.18.0",
     "typescript": "^3.5.2"
