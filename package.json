@@ -47,7 +47,7 @@
     "ts-mocha": "^10.0.0",
     "tslint": "^5.17.0",
     "tslint-config-prettier": "^1.18.0",
-    "typescript": "^3.5.2"
+    "typescript": "^5.0.4"
   },
   "dependencies": {
     "escape-sql-string": "^1.2.2",
