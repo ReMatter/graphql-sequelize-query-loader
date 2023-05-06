@@ -1,6 +1,6 @@
 import { expect } from 'chai';
 
-import { GraphQLResolveInfo } from 'graphql';
+import { parse, buildSchema, GraphQLField } from 'graphql';
 import { Op } from 'sequelize';
 import ArticleModel from './__mocks__/models/Article';
 import CommentModel from './__mocks__/models/Comment';
@@ -8,7 +8,51 @@ import UserModel from './__mocks__/models/User';
 import CategoryModel from './__mocks__/models/Category';
 import { IWhereConstraints } from './types';
 import QueryLoader from './QueryLoader';
+import { GraphQLSchema } from 'graphql';
+import { buildResolveInfo, collectFields, ExecutionContext, buildExecutionContext, getFieldDef } from 'graphql/execution/execute';
+import { getOperationRootType } from 'graphql';
+import { addPath } from 'graphql/execution/execute';
 
+
+const getGraphQLResolveInfo = (schema: GraphQLSchema, query: string) => {
+  const rootValue = {};
+  const contextValue = {};
+  const rawVariablesValue = {};
+
+  const ast = parse(query);
+
+  const executionContext = buildExecutionContext(
+    schema,
+    ast,
+    rootValue,
+    contextValue,
+    rawVariablesValue,
+    null,
+    null,
+  ) as ExecutionContext;
+
+  const operationRootType = getOperationRootType(schema, executionContext.operation)
+  const fields = collectFields(executionContext, operationRootType, executionContext.operation.selectionSet, Object.create(null), Object.create(null));
+
+  const responseName = Object.keys(fields)[0];
+  const fieldNodes = fields[responseName];
+  const fieldNode = fieldNodes[0];
+  const fieldName = fieldNode.name.value;
+
+  const path = addPath(undefined, responseName)
+  // in a future version addPath will require a third argument
+  // const path = addPath(undefined, responseName, operationRootType.name)
+
+  const fieldDef = getFieldDef(schema, operationRootType, fieldName) as GraphQLField<any, any>;
+
+  return buildResolveInfo(
+    executionContext,
+    fieldDef,
+    fieldNodes,
+    operationRootType,
+    path,
+  );
+}
 
 describe('queryLoader', () => {
   const includeModels = {
@@ -19,273 +63,106 @@ describe('queryLoader', () => {
   };
   const queryLoader = new QueryLoader(includeModels, {});
 
+  const schema = buildSchema(`
+    type Query {
+      articles: [Article]
+      categories: [Category]
+    }
+
+    type Article {
+      id: ID!
+      title: String!
+    }
+
+    type Category {
+      id: ID!
+      name: String!
+    }
+  `);
+
+
   describe('queryLoader.getFindOptions()', () => {
-    it('returns empty "include" property, when graphql query lacks included selections', () => {
-      /**
-       * A mock of the structure of the info object produced when a query
-       * like this is sent from graphql
-       * ```js
-       * articles {
-       *   id
-       *   title
-       * }
-       */
-      // TODO generate this mock from the query
-      const info = {
-        fieldName: 'articles',
-        fieldNodes: [{
-          alias: undefined,
-          arguments: [],
-          directives: [],
-          kind: 'Field',
-          selectionSet: {
-            kind: 'SelectionSet',
-            selections: [{
-              alias: undefined,
-              arguments: [],
-              directives: [],
-              kind: 'Field',
-              name: {
-                kind: 'Name',
-                value: 'id',
-              },
-              selectionSet: undefined,
-            },
-            {
-              alias: undefined,
-              arguments: [],
-              directives: [],
-              kind: 'Field',
-              name: {
-                kind: 'Name',
-                value: 'title',
-              },
-              selectionSet: undefined,
-            }
-            ],
-          },
-        }],
-      };
+    it('returns empty "include" property, when graphql query lacks included selections', async () => {
+      const query = `
+        query {
+          articles {
+            id
+            title
+          }
+        }
+      `;
+      const info = getGraphQLResolveInfo(schema, query);
       const options = queryLoader.getFindOptions({
-        info: info as unknown as GraphQLResolveInfo,
+        info,
         model: ArticleModel,
       });
       expect(options.include).to.eql([]);
     });
 
     it('returns non empty with "include" property, when graphql query has included selections', () => {
-      /**
-       * A mock of the structure of the info object produced when a query
-       * like this is sent from graphql
-       * ```js
-       * articles {
-       *   id
-       *   owner {
-       *     firstname
-       *   }
-       *   comments {
-       *     body
-       *   }
-       * }
-       */
-      // TODO generate this mock from the query
-      const info = {
-        fieldName: 'articles',
-        fieldNodes: [{
-          alias: undefined,
-          arguments: [],
-          directives: [],
-          kind: 'Field',
-          selectionSet: {
-            kind: 'SelectionSet',
-            selections: [{
-              arguments: [],
-              kind: 'Field',
-              name: {
-                kind: 'Name',
-                value: 'id',
-              },
-              selectionSet: undefined,
-            },
-            {
-              arguments: [],
-              kind: 'Field',
-              name: {
-                kind: 'Name',
-                value: 'owner',
-              },
-              selectionSet: {
-                kind: 'SelectionSet',
-                selections: [{
-                  arguments: [],
-                  kind: 'Field',
-                  name: {
-                    kind: 'Name',
-                    value: 'firstname',
-                  },
-                  selectionSet: undefined,
-                },
-                ],
-              },
-            },
-            {
-              arguments: [],
-              kind: 'Field',
-              name: {
-                kind: 'Name',
-                value: 'comments',
-              },
-              selectionSet: {
-                kind: 'SelectionSet',
-                selections: [
-                {
-                  arguments: [],
-                  kind: 'Field',
-                  name: {
-                    kind: 'Name',
-                    value: 'body',
-                  },
-                  selectionSet: undefined,
-                }
-                ],
-              },
+      const query = `
+        query {
+          articles {
+            id
+            owner {
+              firstname
             }
-            ],
-          },
-        }],
-      };
+            comments {
+              body
+            }
+          }
+        }
+      `;
+      const info = getGraphQLResolveInfo(schema, query);
       const options = queryLoader.getFindOptions({
-        info: info as unknown as GraphQLResolveInfo,
+        info,
         model: ArticleModel,
       });
       expect(options.include).to.eql([
         {
           as: 'owner',
           model: UserModel,
-          attributes: [ 'firstname', 'id' ],
+          attributes: ['firstname', 'id'],
           required: false
         },
         {
           as: 'comments',
           model: CommentModel,
-          attributes: [ 'body', 'id' ],
+          attributes: ['body', 'id'],
           required: false
         }
       ]);
     });
 
     it('returns empty "where" when graphql query lacks "scope" argument', () => {
-      /**
-       * A mock of the structure of the info object produced when a query
-       * like this is sent from graphql
-       * ```js
-       * articles {
-       *   id
-       *   title
-       * }
-       */
-      // TODO generate this mock from the query
-      const info = {
-        fieldName: 'articles',
-        fieldNodes: [{
-          alias: undefined,
-          arguments: [],
-          directives: [],
-          kind: 'Field',
-          selectionSet: {
-            kind: 'SelectionSet',
-            selections: [{
-              alias: undefined,
-              arguments: [],
-              directives: [],
-              kind: 'Field',
-              name: {
-                kind: 'Name',
-                value: 'id',
-              },
-              selectionSet: undefined,
-            },
-            {
-              alias: undefined,
-              arguments: [],
-              directives: [],
-              kind: 'Field',
-              name: {
-                kind: 'Name',
-                value: 'title',
-              },
-              selectionSet: undefined,
-            }
-            ],
-          },
-        }],
-      };
+      const query = `
+        query {
+          articles {
+            id
+            title
+          }
+        }
+      `;
+      const info = getGraphQLResolveInfo(schema, query);
       const options = queryLoader.getFindOptions({
-        info: info as unknown as GraphQLResolveInfo,
+        info,
         model: ArticleModel,
       });
       expect(options.where).to.be.empty;
     });
 
     it('returns "where" conditions, when graphql query has "scope" argument', () => {
-      /**
-       * A mock of the structure of the info object produced when a query
-       * like this is sent from graphql
-       * ```js
-       * articles(scope: "id|gt|2") {
-       *   id
-       *   title
-       * }
-       */
-      // TODO generate this mock from the query
-      const info = {
-        fieldName: 'articles',
-        fieldNodes: [{
-          alias: undefined,
-          arguments: [{
-            kind: 'Argument',
-            name: {
-              kind: 'Name',
-              value: 'scope',
-            },
-            value: {
-              block: false,
-              kind: 'StringValue',
-              value: 'id|gt|2',
-            },
-          }],
-          directives: [],
-          kind: 'Field',
-          selectionSet: {
-            kind: 'SelectionSet',
-            selections: [{
-              alias: undefined,
-              arguments: [],
-              directives: [],
-              kind: 'Field',
-              name: {
-                kind: 'Name',
-                value: 'id',
-              },
-              selectionSet: undefined,
-            },
-            {
-              alias: undefined,
-              arguments: [],
-              directives: [],
-              kind: 'Field',
-              name: {
-                kind: 'Name',
-                value: 'title',
-              },
-              selectionSet: undefined,
-            }
-            ],
-          },
-        }],
-      };
+      const query = `
+        query {
+          articles(scope: "id|gt|2") {
+            id
+            title
+          }
+        }
+      `;
+      const info = getGraphQLResolveInfo(schema, query);
       const options = queryLoader.getFindOptions({
-        info: info as unknown as GraphQLResolveInfo,
+        info,
         model: ArticleModel,
       });
       const expectedWhereConstraints: IWhereConstraints = {
@@ -299,171 +176,31 @@ describe('queryLoader', () => {
     it.skip('implement tests passing filters');
 
     it('gets findOptions and whereConstraints for deeper shapes', () => {
-      /**
-       * A mock of the structure of the info object produced when a query
-       * like this is sent from graphql
-       * ```js
-       * categories {
-       *   id
-       *   name
-       *   articles(scope: 'id|gt|2 && body|like|%dummy%') {
-       *     id
-       *     title
-       *     owner {
-       *       firstname
-       *       lastname
-       *     }
-       *     comments {
-       *       id
-       *       body
-       *     }
-       *   }
-       * }
-       */
-      // TODO generate this mock from the query
-      const info = {
-        fieldName: 'categories',
-        fieldNodes: [{
-          alias: undefined,
-          arguments: [],
-          directives: [],
-          kind: 'Field',
-          selectionSet: {
-            kind: 'SelectionSet',
-            selections: [{
-              alias: undefined,
-              arguments: [],
-              directives: [],
-              kind: 'Field',
-              name: {
-                kind: 'Name',
-                value: 'id',
-              },
-              selectionSet: undefined,
-            },
-            {
-              alias: undefined,
-              arguments: [],
-              directives: [],
-              kind: 'Field',
-              name: {
-                kind: 'Name',
-                value: 'name',
-              },
-              selectionSet: undefined,
-            },
-            {
-              alias: undefined,
-              arguments: [{
-                kind: 'Argument',
-                name: {
-                  kind: 'Name',
-                  value: 'scope',
-                },
-                value: {
-                  block: false,
-                  kind: 'StringValue',
-                  value: 'id|gt|2 && body|like|%dummy%',
-                },
-              }],
-              directives: [],
-              kind: 'Field',
-              name: {
-                kind: 'Name',
-                value: 'articles',
-              },
-              selectionSet: {
-                kind: 'SelectionSet',
-                selections: [{
-                  arguments: [],
-                  kind: 'Field',
-                  name: {
-                    kind: 'Name',
-                    value: 'id',
-                  },
-                  selectionSet: undefined,
-                },
-                {
-                  arguments: [],
-                  kind: 'Field',
-                  name: {
-                    kind: 'Name',
-                    value: 'title',
-                  },
-                  selectionSet: undefined,
-                },
-                {
-                  arguments: [],
-                  kind: 'Field',
-                  name: {
-                    kind: 'Name',
-                    value: 'owner',
-                  },
-                  selectionSet: {
-                    kind: 'SelectionSet',
-                    selections: [{
-                      arguments: [],
-                      kind: 'Field',
-                      name: {
-                        kind: 'Name',
-                        value: 'firstname',
-                      },
-                      selectionSet: undefined,
-                    },
-                    {
-                      arguments: [],
-                      kind: 'Field',
-                      name: {
-                        kind: 'Name',
-                        value: 'lastname',
-                      },
-                      selectionSet: undefined,
-                    }
-                    ],
-                  },
-                },
-                {
-                  arguments: [],
-                  kind: 'Field',
-                  name: {
-                    kind: 'Name',
-                    value: 'comments',
-                  },
-                  selectionSet: {
-                    kind: 'SelectionSet',
-                    selections: [{
-                      arguments: [],
-                      kind: 'Field',
-                      name: {
-                        kind: 'Name',
-                        value: 'id',
-                      },
-                      selectionSet: undefined,
-                    },
-                    {
-                      arguments: [],
-                      kind: 'Field',
-                      name: {
-                        kind: 'Name',
-                        value: 'body',
-                      },
-                      selectionSet: undefined,
-                    }
-                    ],
-                  },
-                }
-                ],
-              },
+      const query = `
+        query {
+          categories {
+            id
+            name
+            articles(scope: "id|gt|2 && body|like|%dummy%") {
+              id
+              title
+              owner {
+                firstname
+                lastname
+              }
+              comments {
+                id
+                body
+              }
             }
-            ],
-          },
-        }],
-      };
+          }
+        }
+      `;
+      const info = getGraphQLResolveInfo(schema, query);
       const options = queryLoader.getFindOptions({
-        info: info as unknown as GraphQLResolveInfo,
+        info,
         model: CategoryModel,
       });
-
       //TODO make sorting by createdAt an option and not hardcoded always
       const expectedStructure = {
         attributes: ['id', 'name', 'createdAt'],
