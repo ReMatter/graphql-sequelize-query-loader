@@ -1,7 +1,7 @@
 import { DataTypes, Model } from "sequelize";
 import Comment from "./Comment";
 import { sequelize } from "../connection";
-import User from "./User";
+import Author from "./Author";
 
 class Article extends Model { }
 
@@ -18,7 +18,7 @@ Article.init({
   modelName: 'Article',
 });
 
-Article.belongsTo(User, { foreignKey: 'authorId', as: 'owner' });
+Article.belongsTo(Author, { foreignKey: 'authorId', as: 'owner' });
 Article.hasMany(Comment, { foreignKey: 'articleId', as: 'comments' });
 
 

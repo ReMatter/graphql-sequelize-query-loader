@@ -2,8 +2,8 @@ import { literal, Model, ModelCtor, Op, WhereOptions } from 'sequelize';
 import { Literal } from 'sequelize/types/utils';
 
 import { SearchExpression } from './types';
-import { getComputedAttributes } from './util';
 import escapeString from 'escape-sql-string';
+import { getComputedAttributes } from './getComputedAttributes';
 
 export type CustomSearchExpressions = {
   [name: string]: (searchTerm: string) => Literal;

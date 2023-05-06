@@ -1,5 +1,5 @@
 import { ArgumentNode, GraphQLResolveInfo, SelectionNode } from 'graphql';
-import { ColumnOptions, FindAttributeOptions, FindOptions, IncludeOptions, Model, ModelStatic, Model as SequelizeModel, WhereOptions } from "sequelize";
+import { AbstractDataType, AbstractDataTypeConstructor, ColumnOptions, FindAttributeOptions, FindOptions, IncludeOptions, Model, ModelStatic, Model as SequelizeModel, VirtualDataType, WhereOptions } from "sequelize";
 import { Fn, Literal } from 'sequelize/types/utils';
 
 /**
@@ -145,6 +145,20 @@ declare module 'sequelize' {
 
   export interface ModelAttributeColumnOptions<M extends SequelizeModel = SequelizeModel> extends ColumnOptions {
     dependencies?: SequelizeDependency<M>[];
+  }
+
+  /**
+   * Adds type-safety support to our extension for 'includeAs' in 'virtual columns'.
+   */
+  export interface VirtualDataTypeConstructor extends AbstractDataTypeConstructor {
+    new <T extends AbstractDataTypeConstructor | AbstractDataType>(
+      ReturnType: T,
+      fields?: string[] | IncludeAsCallback,
+    ): VirtualDataType<T>;
+    <T extends AbstractDataTypeConstructor | AbstractDataType>(
+      ReturnType: T,
+      fields?: string[] | IncludeAsCallback,
+    ): VirtualDataType<T>;
   }
 }
 

@@ -9,9 +9,8 @@ import {
 } from 'sequelize';
 import { Literal } from 'sequelize/types/utils';
 
-import { getComputedAttributes } from './util';
-
 import escapeString from 'escape-sql-string';
+import { getComputedAttributes } from './getComputedAttributes';
 
 
 const OperatorMap = {

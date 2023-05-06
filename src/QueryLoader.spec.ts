@@ -4,7 +4,7 @@ import { parse, buildSchema, GraphQLField } from 'graphql';
 import { Op } from 'sequelize';
 import ArticleModel from './__mocks__/models/Article';
 import CommentModel from './__mocks__/models/Comment';
-import UserModel from './__mocks__/models/User';
+import AuthorModel from './__mocks__/models/Author';
 import CategoryModel from './__mocks__/models/Category';
 import { IWhereConstraints } from './types';
 import QueryLoader from './QueryLoader';
@@ -58,7 +58,7 @@ describe('queryLoader', () => {
   const includeModels = {
     ArticleModel,
     CommentModel,
-    UserModel,
+    UserModel: AuthorModel,
     CategoryModel,
   };
   const queryLoader = new QueryLoader(includeModels, {});
@@ -67,6 +67,14 @@ describe('queryLoader', () => {
     type Query {
       articles: [Article]
       categories: [Category]
+      authors: [Author]
+    }
+
+    type Author {
+      id: ID!
+      firstname: String!
+      lastname: String!
+      publishedQuantity: Int!
     }
 
     type Article {
@@ -82,6 +90,44 @@ describe('queryLoader', () => {
 
 
   describe('queryLoader.getFindOptions()', () => {
+    it('returns attributes property for the queried fields', async () => {
+      const query = `
+        query {
+          articles {
+            id
+            title
+          }
+        }
+      `;
+      const info = getGraphQLResolveInfo(schema, query);
+      const options = queryLoader.getFindOptions({
+        info,
+        model: ArticleModel,
+      });
+      //TODO make created at optional
+      expect(options.attributes).to.eql(['id', 'title', 'createdAt']);
+    });
+
+    it('returns attributes property for the queried fields with computed queries', async () => {
+      const query = `
+        query {
+          authors {
+            id
+            firstname
+            lastname
+            publishedQuantity
+          }
+        }
+      `;
+      const info = getGraphQLResolveInfo(schema, query);
+      const options = queryLoader.getFindOptions({
+        info,
+        model: AuthorModel,
+      });
+      //TODO make created at optional
+      expect(options.attributes).to.eql(['id', 'firstname', 'lastname', 'publishedQuantity', 'createdAt']);
+    });
+
     it('returns empty "include" property, when graphql query lacks included selections', async () => {
       const query = `
         query {
@@ -121,7 +167,7 @@ describe('queryLoader', () => {
       expect(options.include).to.eql([
         {
           as: 'owner',
-          model: UserModel,
+          model: AuthorModel,
           attributes: ['firstname', 'id'],
           required: false
         },
@@ -210,7 +256,7 @@ describe('queryLoader', () => {
           include: [{
             as: 'owner',
             attributes: ['firstname', 'lastname', 'id'],
-            model: UserModel,
+            model: AuthorModel,
             required: false,
           },
           {
