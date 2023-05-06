@@ -1,323 +1,218 @@
+/* eslint-disable import/no-cycle */
 import {
-  FieldNode,
-  SelectionNode,
-  SelectionSetNode,
-  StringValueNode,
+  GraphQLResolveInfo,
 } from 'graphql';
-
 import {
+  Attributes,
   FindOptions,
   IncludeOptions,
-  Model as SequelizeModel,
+  Model,
+  ModelStatic,
   Op,
+  OrderItem,
+  WhereOptions,
 } from 'sequelize';
 
+
+import getSearchExpressionFilters, { CustomSearchExpressions } from './getSearchExpressionFilters';
+
+import { buildFilter, mergeFilter } from './buildFilter';
+import { buildOrder } from './buildOrder';
 import {
-  IQueryLoader,
-  ISequelizeOperators,
-  IWhereConstraints,
-  SelectedAttributes,
-  SelectedIncludes,
-} from './types';
+  ComputedQueries,
+} from './util';
+import { SearchExpression, Sorter, Maybe, DependenciesByFieldNameByModelName, ModelAssociationMap, CustomFieldFilters } from './types';
+import { getIncludeModel } from './getIncludeModel';
+import { getFindOptionsForModel } from './getFindOptionsForModel';
 
+interface ModelDict {
+  [modelName: string]: ModelStatic<Model>;
+}
 
-/**
- * Dictionary of available query scope operators
- * and their equivalent sequelize operators
- */
-const sequelizeOperators: ISequelizeOperators = {
-  eq: Op.eq,
-  gt: Op.gt,
-  gte: Op.gte,
-  like: Op.like,
-  lt: Op.lt,
-  lte: Op.lte,
-  ne: Op.ne,
-};
+type QueryLoaderFindOptions<M> = Omit<FindOptions<M>, 'include'> & { include?: IncludeOptions[] };
 
+class QueryLoader {
+  private readonly modelsByAssociationByModelName: ModelAssociationMap = {};
 
-const queryLoader: IQueryLoader = {
-  includeModels: {},
+  private readonly customFieldFilters: CustomFieldFilters = {};
+
+  private readonly dependenciesByFieldNameByModelName: DependenciesByFieldNameByModelName = {};
 
   /**
-   * Initialise the queryLoader utility
-   *
-   * @param options - configuration options used for the initializing utility
-   * @param options.includeModels - object containing included Models as pairs of `modelName`: `SequelizeModel`
+   * Initialize the queryLoader utility
    */
-  init({ includeModels }) {
-    if(includeModels === undefined) {
-      throw new Error('Please supply parameter property :includeModels. Check the docs');
+  constructor(private readonly models: ModelDict, customFieldFilters: CustomFieldFilters) {
+    const includeModels: ModelAssociationMap = Object.values(models).reduce(
+      (acc, model) => ({
+        [model.tableName]: {
+          ...Object.values(model.associations).reduce(
+            (associationAcc, association) => ({
+              [association.as]: association.target,
+              ...associationAcc,
+            }),
+            {},
+          ),
+        },
+        ...acc,
+      }),
+      {},
+    );
+
+    const dependenciesByFieldNameByModelName = Object.values(models).reduce((acc, model) => {
+      // import { getAttributes } from 'sequelize-typescript';
+      // const modelAttributes = getAttributes(model.prototype);
+      const modelAttributes = model.getAttributes();
+      const dependenciesByFieldName = Object.entries(modelAttributes)
+        .filter(([, attributes]) => attributes.dependencies)
+        .reduce(
+          (dependencyAcc, [columnName, attributes]) => ({
+            ...dependencyAcc,
+            [columnName]: attributes.dependencies,
+          }),
+          {},
+        );
+
+      return {
+        ...acc,
+        [model.name]: dependenciesByFieldName,
+      };
+    }, {});
+
+    this.modelsByAssociationByModelName = includeModels;
+    this.customFieldFilters = customFieldFilters;
+    this.dependenciesByFieldNameByModelName = dependenciesByFieldNameByModelName;
+  }
+
+  /**
+   * This is the only method that clients should be calling. It does not call itself recursively.
+   * Filter, searchExpressions, sorters, are only applied at the root level of the result, not in any of the includes.
+   *
+   * @param args
+   * @param args.model - the root model of the query
+   * @param args.info - received from graphql after parsing the JSON.
+   *   It has a structure that we can parse or analyse, to determine the attributes to be selected from the database
+   *   as well as the associated models to be included using sequelize include
+   *
+   * @returns the query options to be used in a Model.findAll({ ... }) method call
+   */
+  getFindOptions<M extends Model>(args: {
+    model: ModelStatic<M>;
+    info: GraphQLResolveInfo;
+    filter?: WhereOptions<Attributes<M>>;
+    searchExpressions?: Maybe<readonly SearchExpression[]>;
+    sorters?: readonly (Sorter | OrderItem)[];
+    computedQueries?: ComputedQueries<unknown, unknown>;
+    customSearchExpressions?: CustomSearchExpressions;
+    requiredIncludes?: IncludeOptions[];
+  }): QueryLoaderFindOptions<M> {
+    const {
+      model: rootModel,
+      info,
+      filter,
+      searchExpressions,
+      sorters = [{ field: 'createdAt', order: 'DESC' }],
+      computedQueries,
+      customSearchExpressions,
+      requiredIncludes,
+    } = args;
+
+    const rootSelection = info.fieldNodes[0];
+    const { attributes, include, where, paranoid } = getFindOptionsForModel({
+      model: rootModel,
+      selection: rootSelection,
+      dependenciesByFieldNameByModelName: this.dependenciesByFieldNameByModelName,
+      modelsByAssociationByModelName: this.modelsByAssociationByModelName,
+      customFieldFilters: this.customFieldFilters,
+      variables: info.variableValues,
+      root: true,
+      fragments: info.fragments,
+      computedQueries,
+    });
+
+    if (requiredIncludes?.length) {
+      const associationNames = include.map(({ as }) => as);
+
+      requiredIncludes.forEach((includeable) => {
+        const associationName = includeable.as;
+
+        if (!associationNames.includes(associationName)) {
+          include.push(includeable);
+        }
+      });
     }
-    this.includeModels = includeModels;
-  },
 
-  /**
-   * Returns the options that should be supplied to
-   * a Sequelize `Find` or `FindAll` method call
-   *
-   * @remarks
-   * A GraphQL Query with this structure
-   * ```js
-   * categories {
-   *   name
-   *   articles(scope: "id|gt|2") {
-   *     id
-   *     title
-   *     owner {
-   *       id
-   *       lastname
-   *     }
-   *     comments {
-   *       id
-   *       body
-   *     }
-   *   }
-   * }
-   * ```
-   * is converted to a `findOptions` object, in this structure
-   * forming ONE SINGLE QUERY that will be executed against the database
-   * with sequelize
-   * ```js
-   * {
-   *   attributes: ['name'],
-   *   include: [{
-   *     model: Article,
-   *     as: 'articles',
-   *     attributes: ['id', 'title'],
-   *     required: false,
-   *     where: {
-   *       id: {
-   *         [Symbol(gt)]: '2'
-   *       }
-   *     },
-   *     include: [{
-   *       model: User,
-   *       as: 'owner',
-   *       attributes: ['id', 'lastname'],
-   *       required: false,
-   *       include: []
-   *     },
-   *     {
-   *       model: Comment,
-   *       as: 'comments',
-   *       attributes: ['id', 'body'],
-   *       required: false,
-   *       include: []
-   *     }]
-   *   }]
-   * }
-   * ```
-   * @param model - model
-   * @param info - the info meta property passed from graphql.
-   * It has a structure that we can parse or analyse, to determine the attributes to be selected from the database
-   * as well as the associated models to be included using sequelize include
-   * @returns the query options to be applied to the Find method call
-   *
-   */
-  getFindOptions({ model, info }): object {
-    const selections = (info.fieldNodes[0].selectionSet as SelectionSetNode).selections;
-    const selectedAttributes = this.getSelectedAttributes({ model, selections });
-    const queryIncludes = this.getSelectedIncludes({ model, selections });
+    const includesWithFilter: IncludeOptions[] = [];
 
-    const findOptions: FindOptions = {
-      attributes: selectedAttributes,
+    if (filter) {
+      // Look up for filters meant for includes, assign them to the include and exclude them from the root filter
+      include.forEach((includeable) => {
+        const associationName = includeable.as as string;
+        const associationFilter = filter[associationName];
+
+        if (associationFilter) {
+          const associationModel = getIncludeModel(rootModel, associationName, this.modelsByAssociationByModelName);
+
+          includesWithFilter.push({
+            ...includeable,
+            where: {
+              [Op.and]: buildFilter(
+                associationModel,
+                associationFilter,
+                associationName,
+              ) as unknown as WhereOptions,
+            },
+          });
+
+          delete filter[associationName];
+        } else {
+          includesWithFilter.push(includeable);
+        }
+      });
+    }
+
+    const conditions = buildFilter(rootModel, filter);
+
+    const findOptions: QueryLoaderFindOptions<M> = {
+      attributes,
+      include: filter ? includesWithFilter : include,
+      ...(paranoid ? { paranoid } : {}),
+      where: (filter ? { [Op.and]: conditions } : {}),
     };
 
-    const selectionArguments = info.fieldNodes[0].arguments || [];
-    const whereAttributes = this.turnArgsToWhere(selectionArguments);
+    // @ts-expect-error TS(2345) FIXME: Argument of type 'WhereOptions<M> | undefined' is ... Remove this comment to see the full error message
+    findOptions.where = mergeFilter(findOptions.where, where);
 
-    if (queryIncludes.length) {
-      findOptions.include = queryIncludes;
+    if (searchExpressions || customSearchExpressions) {
+      const expressionFilters = getSearchExpressionFilters(
+        // @ts-expect-error TS(2345) FIXME: Argument of type 'Maybe<readonly SearchExpression[... Remove this comment to see the full error message
+        searchExpressions,
+        customSearchExpressions,
+        rootModel,
+      );
+      findOptions.where = mergeFilter(findOptions.where, expressionFilters);
     }
-    if (Object.keys(whereAttributes).length) {
-      findOptions.where = whereAttributes;
+
+    if (sorters?.length) {
+      const order = buildOrder(rootModel, sorters);
+      findOptions.order = order;
+      // allow sorting by fields of the entity that are not being requested
+      if (Array.isArray(findOptions.attributes)) {
+        findOptions.attributes.push(
+          ...order
+            // We're only interested in sorters that can be added as attributes of the root model
+            // and those have the following pattern: ['fieldName', 'DESC | ASC'].
+            // Some sorter arrays might have length > 2 and those are for more complex sorting,
+            // such as sorting by nested fields, and we need to ignore them to not break the select.
+            .filter((o) => Array.isArray(o) && o.length === 2 && typeof o[0] === 'string')
+            .map((field: [string, string]) => field[0])
+            // @ts-expect-error TS(2532) FIXME: Object is possibly 'undefined'.
+            .filter((fieldName) => !findOptions.attributes.includes(fieldName)),
+        );
+      }
     }
 
     return findOptions;
-  },
-
-  /**
-   * Return an array of all the includes to be carried out
-   * based on the schema sent in the request from graphql
-   *
-   * @param selections - an array of the selection nodes for each field in the schema.
-   * @returns the array that should contain all model and association-model includes
-   */
-  prepareIncludes({ selections = [] }): SelectedIncludes {
-    const includes: SelectedIncludes = [];
-    const includedModelSelections: SelectionNode[] =
-      selections.filter((selection) => (selection as FieldNode).selectionSet !== undefined);
-
-    const hasFieldWithSelectionSet = includedModelSelections !== undefined;
-
-    includedModelSelections.forEach((item) => {
-      const selection = item as FieldNode;
-      const fieldName: string = selection.name.value;
-      const includedModel: SequelizeModel | any = this.getIncludeModel(fieldName);
-      const selectionSet = selection.selectionSet || { selections: undefined };
-
-      const selectedAttributes: SelectedAttributes = this.getSelectedAttributes({
-        model: includedModel,
-        selections: selectionSet.selections
-      });
-
-      let queryIncludes : IncludeOptions[] = [];
-      if (hasFieldWithSelectionSet) {
-        const fieldSelectionSet = selection.selectionSet || { selections: undefined };
-        const currentSelections = fieldSelectionSet.selections;
-        queryIncludes = this.getSelectedIncludes({ model: includedModel, selections: currentSelections });
-      }
-
-      const selectionArguments = selection.arguments || [];
-      const whereAttributes = this.turnArgsToWhere(selectionArguments);
-
-      const includeOption: IncludeOptions = {
-        as: fieldName,
-        attributes: selectedAttributes,
-        model: includedModel,
-        required: false
-      };
-
-      if (Object.keys(whereAttributes).length) {
-        includeOption.where = whereAttributes;
-      }
-      if (queryIncludes.length) {
-        includeOption.include = queryIncludes;
-      }
-
-      includes.push(includeOption);
-    });
-    return includes;
-  },
-
-  /**
-   * Return an array of all the includes to be carried out
-   * based on the schema sent in the request from graphql
-   *
-   * @remarks
-   * This method is called `recursively` to prepare the included models
-   * for all nodes with nested or associated resource(s)
-   *
-   * @param model - a specific model that should be checked for selected includes
-   * @param selections - an array of the selection nodes for each field in the schema.
-   * @returns the array that should contain all model and association-model includes
-   */
-  getSelectedIncludes({ model, selections = [] }) {
-    let includes: SelectedIncludes = [];
-    const includedModelSections = selections.filter(item => (item as FieldNode).selectionSet !== undefined);
-
-    /**
-     * hasFieldWithSelectionSet is used to assert that the top level resource
-     * in the selectionSet has a child field which is a model
-     */
-    const hasFieldWithSelectionSet = includedModelSections !== undefined;
-
-    if (hasFieldWithSelectionSet) {
-      includes = this.prepareIncludes({ model, selections });
-    }
-    return includes
-  },
-
-  getIncludeModel(modelKeyName: string) {
-    return this.includeModels[modelKeyName];
-  },
-
-  getSelectedAttributes({ model, selections = [] }) {
-    /**
-     * Request schema can sometimes have fields that do not exist in the table for the Model requested.
-     * Here, we get all model attributes and check the request schema for fields that exist as
-     * attributes for that model.
-     * Those are the attributes that should be passed to the sequelise "select" query
-     */
-
-    // Initialise the list of selected attributes
-    const selectedAttributes: SelectedAttributes = [];
-
-    // Get the field names for the model
-    const modelAttributes = Object.keys((model).rawAttributes);
-
-    selections.forEach((item) => {
-      const selection = item as FieldNode;
-      const fieldName = selection.name.value;
-      const isModelAttribute = modelAttributes.find(attr => attr === fieldName);
-      const hasSubSelection = selection.selectionSet !== undefined;
-
-      if (isModelAttribute && !hasSubSelection) {
-        selectedAttributes.push(fieldName);
-      }
-    });
-
-    return selectedAttributes;
-  },
-
-  turnArgsToWhere(fieldArguments) {
-    /**
-     * With any of the included models, the query can have arguments,
-     * Here we convert the arguments into a data structure which will
-     * serve as the WHERE property to be supplied to the sequelize query
-     */
-
-    let whereConstraints: IWhereConstraints = {};
-    if (fieldArguments.length) {
-      whereConstraints = this.getWhereConstraints(fieldArguments) as IWhereConstraints;
-    }
-    return whereConstraints;
-  },
-
-  getWhereConstraints(fieldArguments) {
-    const whereOption: IWhereConstraints = {};
-    const scopeFieldArgument = fieldArguments.find(arg => arg.name.value === 'scope');
-
-    if(scopeFieldArgument !== undefined) {
-      const argumentValueNode = scopeFieldArgument.value as StringValueNode;
-      const argumentString = argumentValueNode.value;
-      /**
-       * we split with `&&` because we can multiple constraints
-       * for example we can the scope argument as a string like the following
-       * `id|like|%introduction% && published|eq|true`
-       *
-       * This would be the case for a GraphQL query like the one below
-       * ```js
-       * articles(scope: "id|like|%introduction% && published|eq|true") {
-       *   id
-       *   body
-       * }
-       */
-      const whereComparisons = argumentString.split('&&');
-
-      whereComparisons.forEach((fieldConditionString) => {
-        const splitString = this.getValidScopeString(fieldConditionString);
-        const field = splitString[0].trim();
-        const operation = splitString[1].trim();
-        const value = splitString[2].trim();
-        const sequelizeOperator = sequelizeOperators[operation];
-        whereOption[field] = { [sequelizeOperator]: value };
-      });
-    }
-
-    return whereOption;
-  },
-
-  /**
-   * Validate the scope argument string to be sure
-   * there are no errors.
-   * @param splitString - scope string to be checked
-   */
-  getValidScopeString(fieldConditionString) {
-    const splitString = fieldConditionString.split('|');
-    if(splitString.length < 3) {
-      throw Error(`Incorrect Parts supplied for scope: ${fieldConditionString}`);
-    }
-    const field = splitString[0].trim();
-    const operation = splitString[1].trim();
-    const value = splitString[2].trim();
-
-    if(field === "" || operation === "" || value === "") {
-      throw Error(`Incorrect Parts supplied for scope: ${fieldConditionString}`);
-    }
-    return splitString;
   }
 }
 
-export = queryLoader;
+export default QueryLoader;

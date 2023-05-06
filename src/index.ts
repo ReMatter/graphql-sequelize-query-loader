@@ -1,3 +1,3 @@
-import * as queryLoader from './queryLoader';
+import * as QueryLoader from './QueryLoader';
 
-export default queryLoader;
+export default QueryLoader;
