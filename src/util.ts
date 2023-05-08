@@ -43,7 +43,7 @@ export function unwrapPaginatedSelections(field: FieldNode): readonly SelectionN
 }
 
 export type ComputedQueries<T, U> = {
-  [key in keyof T]: ({ ...args }: U) => Literal;
+  [key in keyof Partial<T>]: ({ ...args }: U) => Literal;
 };
 
 export const extractComputedAttribute: <T>(

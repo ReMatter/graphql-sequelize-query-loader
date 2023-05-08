@@ -74,10 +74,8 @@ export function getSelectedAttributes<M extends Model>(args: {
         // @ts-expect-error TS(2532) FIXME: Object is possibly 'undefined'.
         [nameInMethod]: variables[nameInVariables],
       }))
-      // concat in case we have no vars so we can safely destructure
-      .concat({});
     // we are pushing [query: literal(), attributeName: string]
-    selectedAttributes.add([computedQuery(...vars), computedAttributeName]);
+    selectedAttributes.add([computedQuery(Object.assign({}, ...vars)), computedAttributeName]);
   });
 
   // Always include the primary key of the model

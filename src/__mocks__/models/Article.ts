@@ -10,6 +10,7 @@ Article.init({
   slug: DataTypes.STRING,
   title: DataTypes.STRING,
   description: DataTypes.STRING,
+  releaseDate: DataTypes.DATE,
   body: DataTypes.STRING,
   categoryId: DataTypes.INTEGER,
   authorId: DataTypes.INTEGER,
