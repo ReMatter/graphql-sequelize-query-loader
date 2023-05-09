@@ -1,12 +1,11 @@
 import { expect } from 'chai';
 
 import { parse, buildSchema, GraphQLField } from 'graphql';
-import { Op } from 'sequelize';
+import { Op, WhereAttributeHashValue } from 'sequelize';
 import ArticleModel from './__mocks__/models/Article';
 import CommentModel from './__mocks__/models/Comment';
 import AuthorModel from './__mocks__/models/Author';
 import CategoryModel from './__mocks__/models/Category';
-import { IWhereConstraints } from './types';
 import QueryLoader from './QueryLoader';
 import { GraphQLSchema } from 'graphql';
 import { buildResolveInfo, collectFields, ExecutionContext, buildExecutionContext, getFieldDef } from 'graphql/execution/execute';
@@ -211,10 +210,10 @@ describe('queryLoader', () => {
         info,
         model: ArticleModel,
       });
-      const expectedWhereConstraints: IWhereConstraints = {
+      const expectedWhereConstraints: WhereAttributeHashValue<any> = {
         id: {
           [Op.gt]: '2'
-        }
+        },
       };
       expect(options.where).to.eql(expectedWhereConstraints);
     });

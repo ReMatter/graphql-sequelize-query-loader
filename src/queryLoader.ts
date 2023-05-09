@@ -18,10 +18,7 @@ import getSearchExpressionFilters, { CustomSearchExpressions } from './getSearch
 
 import { buildFilter, mergeFilter } from './buildFilter';
 import { buildOrder } from './buildOrder';
-import {
-  ComputedQueries,
-} from './util';
-import { SearchExpression, Sorter, Maybe, DependenciesByFieldNameByModelName, ModelAssociationMap, CustomFieldFilters } from './types';
+import { SearchExpression, Sorter, Maybe, DependenciesByFieldNameByModelName, ModelAssociationMap, CustomFieldFilters, ComputedQueries } from './types';
 import { getIncludeModel } from './getIncludeModel';
 import { getFindOptionsForModel } from './getFindOptionsForModel';
 
