@@ -7,6 +7,7 @@ import { getSelectedAttributes } from './getSelectedAttributes';
 import { Scalars } from './types';
 import { ComputedQueries } from './util';
 import { Sequelize, literal } from 'sequelize';
+import AuthorModel from './__mocks__/models/Author';
 
 const selections: ReadonlyArray<SelectionNode> = [{
   kind: 'Field',
@@ -84,7 +85,7 @@ describe('getSelectedAttributes()', () => {
       const startDate = new Date('2020-01-01');
       const endDate = new Date('2020-01-31');
       const selectedAttributes = getSelectedAttributes({
-        model: ArticleModel,
+        model: AuthorModel,
         selections: [{
           kind: 'Field',
           alias: { kind: 'Name', value: 'publishedBetween' },

@@ -1,4 +1,4 @@
-import { literal, Model, ModelCtor, Op, WhereOptions } from 'sequelize';
+import { literal, Model, ModelStatic, Op, WhereOptions } from 'sequelize';
 import { Literal } from 'sequelize/types/utils';
 
 import { SearchExpression } from './types';
@@ -16,7 +16,7 @@ export type CustomSearchExpressions = {
 export default function getSearchExpressionFilters<M extends Model>(
   searchExpressions: readonly SearchExpression[],
   customExpressions?: CustomSearchExpressions,
-  model?: ModelCtor<M>,
+  model?: ModelStatic<M>,
 ): WhereOptions<M> {
   const computedAttributes = getComputedAttributes(model);
   // filter out search terms of `''`
@@ -32,8 +32,8 @@ export default function getSearchExpressionFilters<M extends Model>(
                 return [{}, customExpression];
               }
 
-              if (computedAttributes[field]) {
-                const literalExpression = computedAttributes[field];
+              const literalExpression = computedAttributes[field as keyof M];
+              if (literalExpression) {
                 const searchTerm = escapeString(`%${searchExpression.searchTerm}%`);
                 return literal(`(${literalExpression.val}) LIKE ${searchTerm}`);
               }
