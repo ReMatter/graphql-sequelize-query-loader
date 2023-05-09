@@ -1,12 +1,9 @@
 import { SelectionNode, FieldNode, ArgumentNode, VariableNode } from 'graphql';
-import {
-  Op,
-  Model,
-  ModelStatic,
-  DataTypes,
-} from 'sequelize';
-import { ComputedAttributes, IncludeAsCallback } from './types';
+import { Op } from 'sequelize';
 import { Literal } from 'sequelize/types/utils';
+
+const isFieldNode = (node: SelectionNode): node is FieldNode =>
+  'name' in node && node.name.value === 'node';
 
 /**
  * Dictionary of available query scope operators
@@ -26,35 +23,28 @@ export const sequelizeOperators: Record<string, symbol> = {
 
 // Unwraps our paginated graphql request format
 export function unwrapPaginatedSelections(field: FieldNode): readonly SelectionNode[] {
-  // @ts-expect-error TS(2532) FIXME: Object is possibly 'undefined'.
-  const selections = field.selectionSet.selections as FieldNode[];
+  const selections = (field.selectionSet?.selections ?? []) as FieldNode[];
   const edges = selections.find((selection) => selection.name.value === 'edges');
 
   if (!edges) {
     return selections;
   }
 
-  // @ts-expect-error TS(2532) FIXME: Object is possibly 'undefined'.
-  const node = edges.selectionSet.selections.find(
-    (selection: FieldNode) => selection.name.value === 'node',
-  ) as FieldNode;
-  // @ts-expect-error TS(2532) FIXME: Object is possibly 'undefined'.
-  return node.selectionSet.selections;
+  const node = edges.selectionSet?.selections.find(isFieldNode);
+  return node?.selectionSet?.selections ?? [];
 }
 
 export type ComputedQueries<T, U> = {
   [key in keyof Partial<T>]: ({ ...args }: U) => Literal;
 };
 
-export const extractComputedAttribute: <T>(
+export const extractComputedAttribute: <T extends Record<string, any>>(
   ...args: [T, unknown, unknown, { fieldNodes: FieldNode[] }]
 ) => number | string | Date = (...[entity, , , { fieldNodes }]) =>
-  // @ts-expect-error TS(2532) FIXME: Object is possibly 'undefined'.
-  entity[fieldNodes[0].alias.value];
+    entity[fieldNodes[0].alias?.value as string];
 
 export const getComputedQueryVariables = (fieldNode: FieldNode) =>
-  // @ts-expect-error TS(2532) FIXME: Object is possibly 'undefined'.
-  fieldNode.arguments.map((a) => [
+  fieldNode.arguments?.map((a) => [
     a.name.value,
     ((a as ArgumentNode).value as VariableNode).name.value,
-  ]);
+  ]) ?? [];
