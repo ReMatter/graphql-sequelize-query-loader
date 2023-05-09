@@ -5,7 +5,7 @@ import ArticleModel from './__mocks__/models/Article';
 
 import { getSelectedAttributes } from './getSelectedAttributes';
 import { Scalars } from './types';
-import { ComputedQueries } from './util';
+import { ComputedQueries } from './types';
 import { Sequelize, literal } from 'sequelize';
 import AuthorModel from './__mocks__/models/Author';
 

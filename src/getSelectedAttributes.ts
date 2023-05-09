@@ -11,9 +11,9 @@
  * @returns the array that should contain all model and association-model includes
  */
 
-import { FieldNode, GraphQLResolveInfo, SelectionNode } from "graphql";
+import { ArgumentNode, FieldNode, GraphQLResolveInfo, SelectionNode, VariableNode } from "graphql";
 import { Association, FindAttributeOptions, Model, ModelStatic, ProjectionAlias } from "sequelize";
-import { ComputedQueries, getComputedQueryVariables } from "./util";
+import { ComputedQueries } from "./types";
 
 export function getSelectedAttributes<M extends Model>(args: {
   model: ModelStatic<M>;
@@ -88,3 +88,9 @@ export function getSelectedAttributes<M extends Model>(args: {
 
   return [...selectedAttributes] as FindAttributeOptions;
 }
+
+export const getComputedQueryVariables = (fieldNode: FieldNode) =>
+  fieldNode.arguments?.map((a) => [
+    a.name.value,
+    ((a as ArgumentNode).value as VariableNode).name.value,
+  ]) ?? [];

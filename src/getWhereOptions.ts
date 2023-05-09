@@ -1,8 +1,23 @@
 import { FieldNode, GraphQLResolveInfo, StringValueNode, ValueNode, VariableNode } from "graphql";
-import { Model, ModelStatic, WhereOptions } from "sequelize";
+import { Model, ModelStatic, WhereOptions, Op } from "sequelize";
 import { getValidScopeString } from "./getValidScopeString";
-import { sequelizeOperators } from "./util";
 import { CustomFieldFilters } from "./types";
+
+/**
+ * Dictionary of available query scope operators
+ * and their equivalent sequelize operators
+*/
+export const sequelizeOperators: Record<string, symbol> = {
+  eq: Op.eq,
+  gt: Op.gt,
+  gte: Op.gte,
+  like: Op.like,
+  lt: Op.lt,
+  lte: Op.lte,
+  ne: Op.ne,
+  is: Op.is,
+  not: Op.not,
+} as const;
 
 // This type is needed because ValueNode is a Union type and not all of its members have a 'value' property
 type MaterializedValueNode = ValueNode & { value: number | boolean | string };

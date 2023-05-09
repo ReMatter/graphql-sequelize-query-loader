@@ -1,7 +1,6 @@
-import { BooleanValueNode, FieldNode, GraphQLResolveInfo } from "graphql";
+import { BooleanValueNode, FieldNode, GraphQLResolveInfo, SelectionNode } from "graphql";
 import { Model, ModelStatic } from "sequelize";
-import { ComputedQueries, unwrapPaginatedSelections } from "./util";
-import { BaseFindOptions, CustomFieldFilters, DependenciesByFieldNameByModelName, ModelAssociationMap } from "./types";
+import { BaseFindOptions, CustomFieldFilters, DependenciesByFieldNameByModelName, ModelAssociationMap, ComputedQueries } from "./types";
 import { getWhereOptions } from "./getWhereOptions";
 import { getSelectedAttributes } from "./getSelectedAttributes";
 import { getSelectedIncludes } from "./getSelectedIncludes";
@@ -73,4 +72,20 @@ export function getFindOptionsForModel<M extends Model>(args: {
     paranoid,
     required,
   };
+}
+
+const isFieldNode = (node: SelectionNode): node is FieldNode =>
+  'name' in node && node.name.value === 'node';
+
+// Unwraps our paginated graphql request format
+export function unwrapPaginatedSelections(field: FieldNode): readonly SelectionNode[] {
+  const selections = (field.selectionSet?.selections ?? []) as FieldNode[];
+  const edges = selections.find((selection) => selection.name.value === 'edges');
+
+  if (!edges) {
+    return selections;
+  }
+
+  const node = edges.selectionSet?.selections.find(isFieldNode);
+  return node?.selectionSet?.selections ?? [];
 }

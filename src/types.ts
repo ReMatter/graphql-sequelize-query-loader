@@ -1,5 +1,5 @@
 import { ArgumentNode, GraphQLResolveInfo, SelectionNode } from 'graphql';
-import { AbstractDataType, AbstractDataTypeConstructor, ColumnOptions, FindAttributeOptions, FindOptions, IncludeOptions, Model, ModelStatic, Model as SequelizeModel, VirtualDataType, WhereOptions } from "sequelize";
+import { AbstractDataType, AbstractDataTypeConstructor, ColumnOptions, FindAttributeOptions, FindOptions, IncludeOptions, Model, ModelStatic, Model as SequelizeModel, VirtualDataType, WhereOptions, Op } from "sequelize";
 import { Fn, Literal } from 'sequelize/types/utils';
 
 /**
@@ -187,3 +187,7 @@ export interface CustomFieldFilters {
     [fieldName: string]: ({ ...args }) => WhereOptions;
   };
 }
+
+export type ComputedQueries<T, U> = {
+  [key in keyof Partial<T>]: ({ ...args }: U) => Literal;
+};
