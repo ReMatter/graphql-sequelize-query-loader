@@ -1,9 +1,11 @@
-import { FieldNode, GraphQLResolveInfo, StringValueNode } from "graphql";
+import { FieldNode, GraphQLResolveInfo, StringValueNode, ValueNode, VariableNode } from "graphql";
 import { Model, ModelStatic, WhereOptions } from "sequelize";
 import { getValidScopeString } from "./getValidScopeString";
 import { sequelizeOperators } from "./util";
 import { CustomFieldFilters } from "./types";
-import { getWhereOptionsFromCustomFieldFilters } from "./getWhereOptionsFromCustomFieldFilters";
+
+// This type is needed because ValueNode is a Union type and not all of its members have a 'value' property
+type MaterializedValueNode = ValueNode & { value: number | boolean | string };
 
 /**
    * Populate the where field in the FindOptions.
@@ -58,12 +60,18 @@ export function getWhereOptions<M extends Model>(
         return { ...acc, [field]: { [sequelizeOperator]: value === 'null' ? null : value } };
       }, {}) ?? {};
 
-  const whereOptionsFromCustomFieldFilters = getWhereOptionsFromCustomFieldFilters(
-    model,
-    selection,
-    variables,
-    customFieldFilters,
-  );
+  const customFieldFilter = customFieldFilters[model.tableName]?.[selection.name.value];
+  if (!customFieldFilter) return whereOptionsFromScopeArgument;
 
-  return { ...whereOptionsFromScopeArgument, ...whereOptionsFromCustomFieldFilters };
+  const customFieldFilterArguments = selection.arguments?.reduce(
+    (acc, arg) => ({
+      ...acc,
+      [arg.name.value]:
+        (arg.value as MaterializedValueNode).value ??
+        variables[(arg.value as VariableNode).name.value],
+    }),
+    {},
+  ) ?? {};
+
+  return { ...whereOptionsFromScopeArgument, ...customFieldFilter(customFieldFilterArguments) };
 }
