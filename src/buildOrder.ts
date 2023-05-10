@@ -31,3 +31,6 @@ export function buildOrder<M extends Model>(
     return sorter as OrderItem;
   });
 }
+
+export const hasComputedAttributes = (order: OrderItem[]): boolean =>
+  order.some((item) => Array.isArray(item) && typeof item[0] === 'object' && 'val' in item[0]);
