@@ -26,8 +26,8 @@ export type SearchExpression = {
 };
 
 export type Sorter = {
-  readonly field?: Maybe<Scalars['String']>;
-  readonly order?: Maybe<Scalars['String']>;
+  readonly field: Scalars['String'];
+  readonly order: Scalars['String'];
 };
 
 export type ComputedAttributes<M extends SequelizeModel> = {

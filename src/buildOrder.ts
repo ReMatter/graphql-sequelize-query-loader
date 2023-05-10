@@ -16,18 +16,13 @@ export function buildOrder<M extends Model>(
 ): OrderItem[] {
   const computedAttributes = getComputedAttributes(model);
 
-  // @ts-expect-error TS(2322) FIXME: Type '(string | Fn | Col | Literal | [OrderItemCol... Remove this comment to see the full error message
   return sorters.map((sorter) => {
     if (typeof sorter === 'object' && 'field' in sorter && 'order' in sorter) {
-      // @ts-expect-error TS(2538) FIXME: Type 'null' cannot be used as an index type.
-      if (computedAttributes[sorter.field]) {
-        // @ts-expect-error TS(2345) FIXME: Argument of type 'Maybe<string> | undefined' is no... Remove this comment to see the full error message
+      if (computedAttributes[sorter.field as keyof M]) {
         return [literal(sorter.field), sorter.order];
       }
 
-      // @ts-expect-error TS(2533) FIXME: Object is possibly 'null' or 'undefined'.
       if (sorter.field.includes('.')) {
-        // @ts-expect-error TS(2533) FIXME: Object is possibly 'null' or 'undefined'.
         return [...sorter.field.split('.'), sorter.order] as OrderItem;
       }
 
