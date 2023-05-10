@@ -10,7 +10,7 @@ import QueryLoader from './QueryLoader';
 import { GraphQLSchema } from 'graphql';
 import { buildResolveInfo, collectFields, ExecutionContext, buildExecutionContext, getFieldDef } from 'graphql/execution/execute';
 import { getOperationRootType } from 'graphql';
-import { addPath } from 'graphql/execution/execute';
+import { addPath } from 'graphql/jsutils/Path';
 
 
 const getGraphQLResolveInfo = (schema: GraphQLSchema, query: string) => {
@@ -38,9 +38,7 @@ const getGraphQLResolveInfo = (schema: GraphQLSchema, query: string) => {
   const fieldNode = fieldNodes[0];
   const fieldName = fieldNode.name.value;
 
-  const path = addPath(undefined, responseName)
-  // in a future version addPath will require a third argument
-  // const path = addPath(undefined, responseName, operationRootType.name)
+  const path = addPath(undefined, responseName, operationRootType.name)
 
   const fieldDef = getFieldDef(schema, operationRootType, fieldName) as GraphQLField<any, any>;
 
@@ -57,7 +55,7 @@ describe('queryLoader', () => {
   const includeModels = {
     ArticleModel,
     CommentModel,
-    UserModel: AuthorModel,
+    AuthorModel,
     CategoryModel,
   };
   const queryLoader = new QueryLoader(includeModels, {});

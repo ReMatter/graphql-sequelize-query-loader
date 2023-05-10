@@ -15,6 +15,15 @@ import { ArgumentNode, FieldNode, GraphQLResolveInfo, SelectionNode, VariableNod
 import { Association, FindAttributeOptions, Model, ModelStatic, ProjectionAlias } from "sequelize";
 import { ComputedQueries } from "./types";
 
+// TODO fix this, it fails if the computed query has arguments in place
+// ie numJobs: numJobs(afterDate: $afterDate) works
+// numJobs: numJobs(afterDate: "2021-01-01") fails
+const getComputedQueryVariables = (fieldNode: FieldNode) =>
+  fieldNode.arguments?.map((a) => [
+    a.name.value,
+    ((a as ArgumentNode).value as VariableNode).name.value,
+  ]) ?? [];
+
 export function getSelectedAttributes<M extends Model>(args: {
   model: ModelStatic<M>;
   selections: ReadonlyArray<SelectionNode> | undefined;
@@ -88,9 +97,3 @@ export function getSelectedAttributes<M extends Model>(args: {
 
   return [...selectedAttributes] as FindAttributeOptions;
 }
-
-export const getComputedQueryVariables = (fieldNode: FieldNode) =>
-  fieldNode.arguments?.map((a) => [
-    a.name.value,
-    ((a as ArgumentNode).value as VariableNode).name.value,
-  ]) ?? [];
