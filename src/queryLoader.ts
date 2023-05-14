@@ -35,10 +35,12 @@ class QueryLoader {
 
   private readonly dependenciesByFieldNameByModelName: DependenciesByFieldNameByModelName = {};
 
+  private readonly defaultSorters: (Sorter | OrderItem)[] = [];
+
   /**
    * Initialize the queryLoader utility
    */
-  constructor(private readonly models: ModelDict, customFieldFilters: CustomFieldFilters) {
+  constructor(private readonly models: ModelDict, options?: { defaultSorters?: readonly (Sorter | OrderItem)[], customFieldFilters?: CustomFieldFilters }) {
     const includeModels: ModelAssociationMap = Object.values(models).reduce(
       (acc, model) => ({
         [model.tableName]: {
@@ -76,8 +78,9 @@ class QueryLoader {
     }, {});
 
     this.modelsByAssociationByModelName = includeModels;
-    this.customFieldFilters = customFieldFilters;
+    this.customFieldFilters = options?.customFieldFilters ?? {};
     this.dependenciesByFieldNameByModelName = dependenciesByFieldNameByModelName;
+    this.defaultSorters.push(...(options?.defaultSorters ?? []));
   }
 
   /**
@@ -107,7 +110,7 @@ class QueryLoader {
       info,
       filter,
       searchExpressions,
-      sorters = [{ field: 'createdAt', order: 'DESC' }],
+      sorters = this.defaultSorters,
       computedQueries,
       customSearchExpressions,
       requiredIncludes,

@@ -58,7 +58,7 @@ describe('queryLoader', () => {
     AuthorModel,
     CategoryModel,
   };
-  const queryLoader = new QueryLoader(includeModels, {});
+  const queryLoader = new QueryLoader(includeModels);
 
   const schema = buildSchema(`
     type Query {
@@ -87,7 +87,7 @@ describe('queryLoader', () => {
 
 
   describe('queryLoader.getFindOptions()', () => {
-    it('returns attributes property for the queried fields', async () => {
+    it('returns attributes property for the queried fields', () => {
       const query = `
         query {
           articles {
@@ -101,11 +101,10 @@ describe('queryLoader', () => {
         info,
         model: ArticleModel,
       });
-      //TODO make created at optional
-      expect(options.attributes).to.eql(['id', 'title', 'createdAt']);
+      expect(options.attributes).to.eql(['id', 'title']);
     });
 
-    it('returns attributes property for the queried fields with computed queries', async () => {
+    it('returns attributes property for the queried fields with computed queries', () => {
       const query = `
         query {
           authors {
@@ -121,11 +120,10 @@ describe('queryLoader', () => {
         info,
         model: AuthorModel,
       });
-      //TODO make created at optional
-      expect(options.attributes).to.eql(['id', 'firstname', 'lastname', 'publishedQuantity', 'createdAt']);
+      expect(options.attributes).to.eql(['id', 'firstname', 'lastname', 'publishedQuantity']);
     });
 
-    it('returns empty "include" property, when graphql query lacks included selections', async () => {
+    it('returns empty "include" property, when graphql query lacks included selections', () => {
       const query = `
         query {
           articles {
@@ -218,6 +216,30 @@ describe('queryLoader', () => {
 
     it.skip('implement tests passing filters');
 
+    it.skip('implement tests passing custom sorters to detect computed attributes');
+
+    it('uses the defalt sorter if provided', () => {
+      const query = `
+        query {
+          articles {
+            id
+            title
+          }
+        }
+      `;
+      const info = getGraphQLResolveInfo(schema, query);
+      const options = new QueryLoader(includeModels, {defaultSorters: [{ field: 'createdAt', order: 'DESC' }]}).getFindOptions({
+        info,
+        model: ArticleModel,
+      });
+      expect(options).to.eql({
+        attributes: ['id', 'title', 'createdAt'],
+        include: [],
+        where: {},
+        order: [['createdAt', 'DESC']],
+      });
+    });
+
     it('gets findOptions and whereConstraints for deeper shapes', () => {
       const query = `
         query {
@@ -244,9 +266,8 @@ describe('queryLoader', () => {
         info,
         model: CategoryModel,
       });
-      //TODO make sorting by createdAt an option and not hardcoded always
       const expectedStructure = {
-        attributes: ['id', 'name', 'createdAt'],
+        attributes: ['id', 'name'],
         include: [{
           as: 'articles',
           attributes: ['id', 'title'],
@@ -274,7 +295,6 @@ describe('queryLoader', () => {
           },
         }],
         where: {},
-        order: [['createdAt', 'DESC']],
       }
 
       expect(options).to.eql(expectedStructure);
