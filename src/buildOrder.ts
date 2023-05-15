@@ -1,4 +1,4 @@
-import { literal, Model, ModelStatic, OrderItem } from 'sequelize';
+import { literal, Model, ModelStatic, Order, OrderItem } from 'sequelize';
 import { Sorter } from './types';
 import { getComputedAttributes } from './getComputedAttributes';
 
@@ -13,6 +13,7 @@ import { getComputedAttributes } from './getComputedAttributes';
 export function buildOrder<M extends Model>(
   model: ModelStatic<M>,
   sorters: readonly (OrderItem | Sorter)[],
+  customSorters?: { [key: string]: Order },
 ): OrderItem[] {
   const computedAttributes = getComputedAttributes(model);
 
@@ -20,6 +21,10 @@ export function buildOrder<M extends Model>(
     if (typeof sorter === 'object' && 'field' in sorter && 'order' in sorter) {
       if (computedAttributes[sorter.field as keyof M]) {
         return [literal(sorter.field), sorter.order];
+      }
+
+      if (customSorters?.[sorter.field]) {
+        return [customSorters[sorter.field], sorter.order] as OrderItem;
       }
 
       if (sorter.field.includes('.')) {

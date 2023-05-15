@@ -1,7 +1,7 @@
 import { expect } from 'chai';
 
 import { parse, buildSchema, GraphQLField } from 'graphql';
-import { Op, WhereAttributeHashValue } from 'sequelize';
+import { Op, WhereAttributeHashValue, literal } from 'sequelize';
 import ArticleModel from './__mocks__/models/Article';
 import CommentModel from './__mocks__/models/Comment';
 import AuthorModel from './__mocks__/models/Author';
@@ -216,7 +216,31 @@ describe('queryLoader', () => {
 
     it.skip('implement tests passing filters');
 
-    it.skip('implement tests passing custom sorters to detect computed attributes');
+    it('uses a custom sorter if provided', () => {
+      const query = `
+        query {
+          categories {
+            id
+            name
+          }
+        }
+      `;
+      const info = getGraphQLResolveInfo(schema, query);
+      const options = queryLoader.getFindOptions({
+        info,
+        model: CategoryModel,
+        sorters: [{ field: 'size', order: 'DESC' }],
+        customSorters: { size: literal(`(SELECT COUNT(*) FROM articles
+        WHERE articler.categoryId = category.id)`), },
+      });
+      expect(options).to.eql({
+        attributes: ['id', 'name'],
+        include: [],
+        where: {},
+        order: [[literal(`(SELECT COUNT(*) FROM articles
+        WHERE articler.categoryId = category.id)`), 'DESC']],
+      });
+    });
 
     it('uses the defalt sorter if provided', () => {
       const query = `

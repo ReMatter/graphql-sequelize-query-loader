@@ -9,7 +9,9 @@ import {
   Model,
   ModelStatic,
   Op,
+  Order,
   OrderItem,
+  ProjectionAlias,
   WhereOptions,
 } from 'sequelize';
 
@@ -101,6 +103,7 @@ class QueryLoader {
     filter?: WhereOptions<Attributes<M>>;
     searchExpressions?: Maybe<readonly SearchExpression[]>;
     sorters?: readonly (Sorter | OrderItem)[];
+    customSorters?: { [key: string]: Order };
     computedQueries?: ComputedQueries<unknown, unknown>;
     customSearchExpressions?: CustomSearchExpressions;
     requiredIncludes?: IncludeOptions[];
@@ -111,6 +114,7 @@ class QueryLoader {
       filter,
       searchExpressions,
       sorters = this.defaultSorters,
+      customSorters,
       computedQueries,
       customSearchExpressions,
       requiredIncludes,
@@ -193,7 +197,7 @@ class QueryLoader {
     }
 
     if (sorters?.length) {
-      const order = buildOrder(rootModel, sorters);
+      const order = buildOrder(rootModel, sorters, customSorters);
       findOptions.order = order;
       // allow sorting by fields of the entity that are not being requested
       if (Array.isArray(findOptions.attributes)) {
@@ -204,9 +208,8 @@ class QueryLoader {
             // Some sorter arrays might have length > 2 and those are for more complex sorting,
             // such as sorting by nested fields, and we need to ignore them to not break the select.
             .filter((o) => Array.isArray(o) && o.length === 2 && typeof o[0] === 'string')
-            .map((field: [string, string]) => field[0])
-            // @ts-expect-error TS(2532) FIXME: Object is possibly 'undefined'.
-            .filter((fieldName) => !findOptions.attributes.includes(fieldName)),
+            .map((field: OrderItem) => (field as [string, any])[0])
+            .filter((fieldName) => !(findOptions.attributes as ((string | ProjectionAlias)[])).includes(fieldName)),
         );
       }
     }
