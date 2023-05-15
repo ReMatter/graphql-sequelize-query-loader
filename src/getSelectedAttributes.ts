@@ -90,10 +90,5 @@ export function getSelectedAttributes<M extends Model>(args: {
   // Always include the primary key of the model
   selectedAttributes.add(model.primaryKeyAttribute);
 
-  // Always include centralizedCompanyId if the model has it
-  if (modelAttributes.includes('centralizedCompanyId')) {
-    selectedAttributes.add('centralizedCompanyId');
-  }
-
   return [...selectedAttributes] as FindAttributeOptions;
 }
