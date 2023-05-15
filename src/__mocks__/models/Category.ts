@@ -14,5 +14,6 @@ Category.init({
 });
 
 Category.hasMany(Article, { foreignKey: 'categoryId', as: 'articles' });
+Category.hasMany(Article, { foreignKey: 'categoryId', as: 'articleArchive' });
 
 export default Category;

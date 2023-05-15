@@ -60,8 +60,6 @@ class QueryLoader {
     );
 
     const dependenciesByFieldNameByModelName = Object.values(models).reduce((acc, model) => {
-      // import { getAttributes } from 'sequelize-typescript';
-      // const modelAttributes = getAttributes(model.prototype);
       const modelAttributes = model.getAttributes();
       const dependenciesByFieldName = Object.entries(modelAttributes)
         .filter(([, attributes]) => attributes.dependencies)
@@ -133,6 +131,8 @@ class QueryLoader {
       computedQueries,
     });
 
+    // TODO we should remove this in favor of computing which are the required includes
+    // based on the fields that are being selected, filtering, sorting, etc.
     if (requiredIncludes?.length) {
       const associationNames = include.map(({ as }) => as);
 

@@ -30,6 +30,7 @@ describe('getSelectedIncludes()', () => {
       selections,
       dependenciesByFieldNameByModelName: {},
       modelsByAssociationByModelName: {},
+      customFieldFilters: {},
     });
     expect(includes).to.eql([]);
   });
@@ -61,6 +62,7 @@ describe('getSelectedIncludes()', () => {
       selections,
       dependenciesByFieldNameByModelName: { Article: {} },
       modelsByAssociationByModelName: { Articles: { owner: UserModel } },
+      customFieldFilters: {},
     });
 
     expect(includes).to.eql([{
@@ -161,6 +163,7 @@ describe('getSelectedIncludes()', () => {
       selections,
       dependenciesByFieldNameByModelName: { Article: {}, User: {}, Comment: {}, Category: {} },
       modelsByAssociationByModelName: { Articles: { owner: UserModel, comments: CommentModel }, Categories: { articles: ArticleModel }, Comments: {}, Users: {} },
+      customFieldFilters: {},
     });
 
     expect(includes).to.eql([{

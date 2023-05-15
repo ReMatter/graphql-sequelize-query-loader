@@ -1,6 +1,6 @@
 import { FieldNode, GraphQLResolveInfo } from "graphql";
 import { IncludeOptions, Model, ModelStatic } from "sequelize";
-import { DependenciesByFieldNameByModelName, ModelAssociationMap } from "./types";
+import { CustomFieldFilters, DependenciesByFieldNameByModelName, ModelAssociationMap } from "./types";
 import { getIncludeModel } from "./getIncludeModel";
 import { getFindOptionsForModel } from "./getFindOptionsForModel";
 
@@ -26,10 +26,11 @@ export function getSelectedIncludes<M extends Model>(args: {
   selections: readonly FieldNode[];
   dependenciesByFieldNameByModelName: DependenciesByFieldNameByModelName;
   modelsByAssociationByModelName: ModelAssociationMap;
+  customFieldFilters: CustomFieldFilters,
   variables?: GraphQLResolveInfo['variableValues'];
   fragments?: GraphQLResolveInfo['fragments'];
 }): IncludeOptions[] {
-  const { model, selections, dependenciesByFieldNameByModelName, modelsByAssociationByModelName, variables, fragments } = args;
+  const { model, selections, dependenciesByFieldNameByModelName, modelsByAssociationByModelName, customFieldFilters, variables, fragments } = args;
 
   // Method 1: Include associations if dependent fields are requested
   const includesFromDependantSelectedFields: IncludeOptions[] = selections
@@ -75,7 +76,7 @@ export function getSelectedIncludes<M extends Model>(args: {
         selection,
         dependenciesByFieldNameByModelName,
         modelsByAssociationByModelName,
-        customFieldFilters: {},
+        customFieldFilters,
         variables,
         fragments,
       });

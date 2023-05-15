@@ -50,6 +50,7 @@ export function getFindOptionsForModel<M extends Model>(args: {
     selections: selectionsWithFragmentsReplaced,
     dependenciesByFieldNameByModelName,
     modelsByAssociationByModelName,
+    customFieldFilters,
     variables,
     fragments,
   });

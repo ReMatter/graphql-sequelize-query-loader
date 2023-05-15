@@ -82,6 +82,7 @@ describe('queryLoader', () => {
     type Category {
       id: ID!
       name: String!
+      articles(from: String, to: String): [Article]
     }
   `);
 
@@ -214,7 +215,36 @@ describe('queryLoader', () => {
       expect(options.where).to.eql(expectedWhereConstraints);
     });
 
-    it.skip('implement tests passing filters');
+    it('uses custom filters if provided', () => {
+      const query = `
+        query {
+          categories {
+            id
+            name
+            articleArchive(from: "2014-01-01" to: "2014-12-31") {
+              id
+              title
+            }
+          }
+        }
+      `;
+      const info = getGraphQLResolveInfo(schema, query);
+      const options = new QueryLoader(includeModels, {customFieldFilters: {Articles: {articleArchive: ({from, to}) => ({releaseDate: {[Op.between]: [from, to]}})}}}).getFindOptions({
+        info,
+        model: CategoryModel,
+      });
+      expect(options).to.eql({
+        attributes: ['id', 'name'],
+        include: [{
+          as: 'articleArchive',
+          attributes: ['id', 'title'],
+          model: ArticleModel,
+          required: false,
+          where: { releaseDate: { [Op.between]: ['2014-01-01', '2014-12-31'] } },
+        }],
+        where: {},
+      });
+    });
 
     it('uses a custom sorter if provided', () => {
       const query = `
