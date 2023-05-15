@@ -6,7 +6,7 @@
     "outDir": "./lib",
     "strict": true,
     "watch": true,
-    "skipLibCheck": true,
+    "skipLibCheck": true
   },
   "include": ["src"],
   "exclude": ["node_modules"]

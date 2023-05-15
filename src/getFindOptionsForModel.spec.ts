@@ -1,3 +1,3 @@
-describe('getFindOptionsForModel()', () => {
-  it.skip('implement tests', () => { });
+describe("getFindOptionsForModel()", () => {
+  it.skip("implement tests", () => {});
 });

@@ -1,10 +1,10 @@
-import { expect } from 'chai';
-import { getComputedAttributes } from './getComputedAttributes';
-import AuthorModel from './__mocks__/models/Author';
-import { literal } from 'sequelize';
-import ArticleModel from './__mocks__/models/Article';
-import { makeExecutableSchema } from '@graphql-tools/schema';
-import { graphql } from 'graphql';
+import { expect } from "chai";
+import { getComputedAttributes } from "./getComputedAttributes";
+import AuthorModel from "./__mocks__/models/Author";
+import { literal } from "sequelize";
+import ArticleModel from "./__mocks__/models/Article";
+import { makeExecutableSchema } from "@graphql-tools/schema";
+import { graphql } from "graphql";
 
 const typeDefs = `
   type Author {
@@ -34,37 +34,39 @@ const query = `
   }
 `;
 
-
 const resolvers = {
   RootQuery: {
     authors: () => {
       const author = new AuthorModel({ id: 1 });
       // publishedBeween does not belong to the model itself just as a graphql field
-      Object.defineProperty(author, 'publishedBetween', { value: 10 });
+      Object.defineProperty(author, "publishedBetween", { value: 10 });
       return [author];
     },
-  }
+  },
 };
 
-
-describe('getComputedAttributes()', () => {
-  it('return an object with the computed attributes present', () => {
+describe("getComputedAttributes()", () => {
+  it("return an object with the computed attributes present", () => {
     const computedAttributes = getComputedAttributes(AuthorModel);
-    expect(computedAttributes).to.eql({publishedQuantity: literal(`(SELECT COUNT(*) FROM article WHERE article.authorId = Author.id)`)});
+    expect(computedAttributes).to.eql({
+      publishedQuantity: literal(
+        `(SELECT COUNT(*) FROM article WHERE article.authorId = Author.id)`
+      ),
+    });
   });
 
-  it('return an empty object if no computed attributes are present', () => {
+  it("return an empty object if no computed attributes are present", () => {
     const computedAttributes = getComputedAttributes(ArticleModel);
     expect(computedAttributes).to.be.empty;
   });
 
-  it('returns the computed attribute with its alias', async () => {
+  it("returns the computed attribute with its alias", async () => {
     const schema = makeExecutableSchema({
       typeDefs,
       resolvers,
     });
 
-    const res = await graphql({ schema, source: query })
-    expect(res.data).to.eql({authors: [{id: '1', published: 10}]})
+    const res = await graphql({ schema, source: query });
+    expect(res.data).to.eql({ authors: [{ id: "1", published: 10 }] });
   });
 });

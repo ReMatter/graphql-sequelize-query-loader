@@ -1,3 +1,3 @@
-describe('getWhereOptions()', () => {
-  it.skip('implement tests', () => { });
+describe("getWhereOptions()", () => {
+  it.skip("implement tests", () => {});
 });

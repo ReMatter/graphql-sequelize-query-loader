@@ -6,54 +6,52 @@ import {
   WhereAttributeHash,
   WhereOptions,
   WhereValue,
-} from 'sequelize';
-import { Literal } from 'sequelize/types/utils';
+} from "sequelize";
+import { Literal } from "sequelize/types/utils";
 
-import escapeString from 'escape-sql-string';
-import { getComputedAttributes } from './getComputedAttributes';
-
+import escapeString from "escape-sql-string";
+import { getComputedAttributes } from "./getComputedAttributes";
 
 const OperatorMap = {
-    [Op.eq]: "=",
-    [Op.ne]: "!=",
-    [Op.gte]: ">=",
-    [Op.gt]: ">",
-    [Op.lte]: "<=",
-    [Op.lt]: "<",
-    [Op.not]: "IS NOT",
-    [Op.is]: "IS",
-    [Op.in]: "IN",
-    [Op.notIn]: "NOT IN",
-    [Op.like]: "LIKE",
-    [Op.notLike]: "NOT LIKE",
-    [Op.iLike]: "ILIKE",
-    [Op.notILike]: "NOT ILIKE",
-    [Op.startsWith]: "LIKE",
-    [Op.endsWith]: "LIKE",
-    [Op.substring]: "LIKE",
-    [Op.regexp]: "~",
-    [Op.notRegexp]: "!~",
-    [Op.iRegexp]: "~*",
-    [Op.notIRegexp]: "!~*",
-    [Op.between]: "BETWEEN",
-    [Op.notBetween]: "NOT BETWEEN",
-    [Op.overlap]: "&&",
-    [Op.contains]: "@>",
-    [Op.contained]: "<@",
-    [Op.adjacent]: "-|-",
-    [Op.strictLeft]: "<<",
-    [Op.strictRight]: ">>",
-    [Op.noExtendRight]: "&<",
-    [Op.noExtendLeft]: "&>",
-    [Op.any]: "ANY",
-    [Op.all]: "ALL",
-    [Op.and]: " AND ",
-    [Op.or]: " OR ",
-    [Op.col]: "COL",
-    [Op.placeholder]: "$$PLACEHOLDER$$",
-    [Op.match]: "@@"
-  };
-
+  [Op.eq]: "=",
+  [Op.ne]: "!=",
+  [Op.gte]: ">=",
+  [Op.gt]: ">",
+  [Op.lte]: "<=",
+  [Op.lt]: "<",
+  [Op.not]: "IS NOT",
+  [Op.is]: "IS",
+  [Op.in]: "IN",
+  [Op.notIn]: "NOT IN",
+  [Op.like]: "LIKE",
+  [Op.notLike]: "NOT LIKE",
+  [Op.iLike]: "ILIKE",
+  [Op.notILike]: "NOT ILIKE",
+  [Op.startsWith]: "LIKE",
+  [Op.endsWith]: "LIKE",
+  [Op.substring]: "LIKE",
+  [Op.regexp]: "~",
+  [Op.notRegexp]: "!~",
+  [Op.iRegexp]: "~*",
+  [Op.notIRegexp]: "!~*",
+  [Op.between]: "BETWEEN",
+  [Op.notBetween]: "NOT BETWEEN",
+  [Op.overlap]: "&&",
+  [Op.contains]: "@>",
+  [Op.contained]: "<@",
+  [Op.adjacent]: "-|-",
+  [Op.strictLeft]: "<<",
+  [Op.strictRight]: ">>",
+  [Op.noExtendRight]: "&<",
+  [Op.noExtendLeft]: "&>",
+  [Op.any]: "ANY",
+  [Op.all]: "ALL",
+  [Op.and]: " AND ",
+  [Op.or]: " OR ",
+  [Op.col]: "COL",
+  [Op.placeholder]: "$$PLACEHOLDER$$",
+  [Op.match]: "@@",
+};
 
 /**
  * Parses virtual/computed fields into Literal
@@ -61,10 +59,13 @@ const OperatorMap = {
  * @param rawValue the original filter value
  * @returns a Literal
  */
-const buildLiteralFilter = (literalExpression: Literal, rawValue: WhereValue): Literal => {
+const buildLiteralFilter = (
+  literalExpression: Literal,
+  rawValue: WhereValue
+): Literal => {
   const expression = `(${literalExpression.val})`;
 
-  if (typeof rawValue === 'object') {
+  if (typeof rawValue === "object") {
     const operator = Object.getOwnPropertySymbols(rawValue)[0];
     const operatorLiteral = OperatorMap[operator];
     if (operatorLiteral) {
@@ -77,7 +78,8 @@ const buildLiteralFilter = (literalExpression: Literal, rawValue: WhereValue): L
   // @ts-expect-error TS(2345) FIXME: Argument of type 'WhereValue<any>' is not assignab... Remove this comment to see the full error message
   const escapedValue = escapeString(rawValue);
 
-  if (Array.isArray(rawValue)) return literal(`${expression} IN (${escapedValue})`);
+  if (Array.isArray(rawValue))
+    return literal(`${expression} IN (${escapedValue})`);
 
   return literal(`${expression} = ${escapedValue}`);
 };
@@ -94,16 +96,20 @@ const buildLiteralFilter = (literalExpression: Literal, rawValue: WhereValue): L
 export function buildFilter<M extends Model>(
   model: ModelCtor<M>,
   filter?: WhereOptions<M>,
-  includeAs: string = model.name,
+  includeAs: string = model.name
 ): WhereOptions<M> {
   if (!filter) return [];
 
   const computedAttributes = getComputedAttributes(model, includeAs);
-  const keys = [...Object.keys(filter), ...Object.getOwnPropertySymbols(filter)];
+  const keys = [
+    ...Object.keys(filter),
+    ...Object.getOwnPropertySymbols(filter),
+  ];
 
   return keys.map((key) => {
     const rawValue = filter[key];
-    if (computedAttributes[key]) return buildLiteralFilter(computedAttributes[key], rawValue);
+    if (computedAttributes[key])
+      return buildLiteralFilter(computedAttributes[key], rawValue);
 
     if ((key === Op.or || key === Op.and) && Array.isArray(rawValue)) {
       return {
@@ -114,7 +120,8 @@ export function buildFilter<M extends Model>(
             ...Object.entries(object).map(([innerKey, innerValue]) => {
               const literalMapping = computedAttributes[innerKey];
               // @ts-expect-error TS(2345) FIXME: Argument of type 'unknown' is not assignable to pa... Remove this comment to see the full error message
-              if (literalMapping) return buildLiteralFilter(literalMapping, innerValue);
+              if (literalMapping)
+                return buildLiteralFilter(literalMapping, innerValue);
               return { [innerKey]: innerValue } as WhereAttributeHash<M>;
             }),
           ]),
@@ -128,7 +135,7 @@ export function buildFilter<M extends Model>(
 
 export function mergeFilter<M extends Model>(
   target: WhereOptions<M>,
-  source: WhereOptions<M>,
+  source: WhereOptions<M>
 ): WhereOptions<M> {
   const src = { ...source };
 
@@ -140,7 +147,7 @@ export function mergeFilter<M extends Model>(
       }
       return acc;
     },
-    { ...target },
+    { ...target }
   );
 
   return { ...dest, ...src };

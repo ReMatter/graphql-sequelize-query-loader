@@ -1,17 +1,22 @@
-import { expect } from 'chai';
+import { expect } from "chai";
 
-import { parse, buildSchema, GraphQLField } from 'graphql';
-import { Op, WhereAttributeHashValue, literal } from 'sequelize';
-import ArticleModel from './__mocks__/models/Article';
-import CommentModel from './__mocks__/models/Comment';
-import AuthorModel from './__mocks__/models/Author';
-import CategoryModel from './__mocks__/models/Category';
-import QueryLoader from './QueryLoader';
-import { GraphQLSchema } from 'graphql';
-import { buildResolveInfo, collectFields, ExecutionContext, buildExecutionContext, getFieldDef } from 'graphql/execution/execute';
-import { getOperationRootType } from 'graphql';
-import { addPath } from 'graphql/jsutils/Path';
-
+import { parse, buildSchema, GraphQLField } from "graphql";
+import { Op, WhereAttributeHashValue, literal } from "sequelize";
+import ArticleModel from "./__mocks__/models/Article";
+import CommentModel from "./__mocks__/models/Comment";
+import AuthorModel from "./__mocks__/models/Author";
+import CategoryModel from "./__mocks__/models/Category";
+import QueryLoader from "./QueryLoader";
+import { GraphQLSchema } from "graphql";
+import {
+  buildResolveInfo,
+  collectFields,
+  ExecutionContext,
+  buildExecutionContext,
+  getFieldDef,
+} from "graphql/execution/execute";
+import { getOperationRootType } from "graphql";
+import { addPath } from "graphql/jsutils/Path";
 
 const getGraphQLResolveInfo = (schema: GraphQLSchema, query: string) => {
   const rootValue = {};
@@ -27,31 +32,44 @@ const getGraphQLResolveInfo = (schema: GraphQLSchema, query: string) => {
     contextValue,
     rawVariablesValue,
     null,
-    null,
+    null
   ) as ExecutionContext;
 
-  const operationRootType = getOperationRootType(schema, executionContext.operation)
-  const fields = collectFields(executionContext, operationRootType, executionContext.operation.selectionSet, Object.create(null), Object.create(null));
+  const operationRootType = getOperationRootType(
+    schema,
+    executionContext.operation
+  );
+  const fields = collectFields(
+    executionContext,
+    operationRootType,
+    executionContext.operation.selectionSet,
+    Object.create(null),
+    Object.create(null)
+  );
 
   const responseName = Object.keys(fields)[0];
   const fieldNodes = fields[responseName];
   const fieldNode = fieldNodes[0];
   const fieldName = fieldNode.name.value;
 
-  const path = addPath(undefined, responseName, operationRootType.name)
+  const path = addPath(undefined, responseName, operationRootType.name);
 
-  const fieldDef = getFieldDef(schema, operationRootType, fieldName) as GraphQLField<any, any>;
+  const fieldDef = getFieldDef(
+    schema,
+    operationRootType,
+    fieldName
+  ) as GraphQLField<any, any>;
 
   return buildResolveInfo(
     executionContext,
     fieldDef,
     fieldNodes,
     operationRootType,
-    path,
+    path
   );
-}
+};
 
-describe('queryLoader', () => {
+describe("queryLoader", () => {
   const includeModels = {
     ArticleModel,
     CommentModel,
@@ -86,9 +104,8 @@ describe('queryLoader', () => {
     }
   `);
 
-
-  describe('queryLoader.getFindOptions()', () => {
-    it('returns attributes property for the queried fields', () => {
+  describe("queryLoader.getFindOptions()", () => {
+    it("returns attributes property for the queried fields", () => {
       const query = `
         query {
           articles {
@@ -102,10 +119,10 @@ describe('queryLoader', () => {
         info,
         model: ArticleModel,
       });
-      expect(options.attributes).to.eql(['id', 'title']);
+      expect(options.attributes).to.eql(["id", "title"]);
     });
 
-    it('returns attributes property for the queried fields with computed queries', () => {
+    it("returns attributes property for the queried fields with computed queries", () => {
       const query = `
         query {
           authors {
@@ -121,7 +138,12 @@ describe('queryLoader', () => {
         info,
         model: AuthorModel,
       });
-      expect(options.attributes).to.eql(['id', 'firstname', 'lastname', 'publishedQuantity']);
+      expect(options.attributes).to.eql([
+        "id",
+        "firstname",
+        "lastname",
+        "publishedQuantity",
+      ]);
     });
 
     it('returns empty "include" property, when graphql query lacks included selections', () => {
@@ -162,17 +184,17 @@ describe('queryLoader', () => {
       });
       expect(options.include).to.eql([
         {
-          as: 'owner',
+          as: "owner",
           model: AuthorModel,
-          attributes: ['firstname', 'id'],
-          required: false
+          attributes: ["firstname", "id"],
+          required: false,
         },
         {
-          as: 'comments',
+          as: "comments",
           model: CommentModel,
-          attributes: ['body', 'id'],
-          required: false
-        }
+          attributes: ["body", "id"],
+          required: false,
+        },
       ]);
     });
 
@@ -209,13 +231,13 @@ describe('queryLoader', () => {
       });
       const expectedWhereConstraints: WhereAttributeHashValue<any> = {
         id: {
-          [Op.gt]: '2'
+          [Op.gt]: "2",
         },
       };
       expect(options.where).to.eql(expectedWhereConstraints);
     });
 
-    it('uses custom filters if provided', () => {
+    it("uses custom filters if provided", () => {
       const query = `
         query {
           categories {
@@ -229,24 +251,36 @@ describe('queryLoader', () => {
         }
       `;
       const info = getGraphQLResolveInfo(schema, query);
-      const options = new QueryLoader(includeModels, {customFieldFilters: {Articles: {articleArchive: ({from, to}) => ({releaseDate: {[Op.between]: [from, to]}})}}}).getFindOptions({
+      const options = new QueryLoader(includeModels, {
+        customFieldFilters: {
+          Articles: {
+            articleArchive: ({ from, to }) => ({
+              releaseDate: { [Op.between]: [from, to] },
+            }),
+          },
+        },
+      }).getFindOptions({
         info,
         model: CategoryModel,
       });
       expect(options).to.eql({
-        attributes: ['id', 'name'],
-        include: [{
-          as: 'articleArchive',
-          attributes: ['id', 'title'],
-          model: ArticleModel,
-          required: false,
-          where: { releaseDate: { [Op.between]: ['2014-01-01', '2014-12-31'] } },
-        }],
+        attributes: ["id", "name"],
+        include: [
+          {
+            as: "articleArchive",
+            attributes: ["id", "title"],
+            model: ArticleModel,
+            required: false,
+            where: {
+              releaseDate: { [Op.between]: ["2014-01-01", "2014-12-31"] },
+            },
+          },
+        ],
         where: {},
       });
     });
 
-    it('uses a custom sorter if provided', () => {
+    it("uses a custom sorter if provided", () => {
       const query = `
         query {
           categories {
@@ -259,20 +293,27 @@ describe('queryLoader', () => {
       const options = queryLoader.getFindOptions({
         info,
         model: CategoryModel,
-        sorters: [{ field: 'size', order: 'DESC' }],
-        customSorters: { size: literal(`(SELECT COUNT(*) FROM articles
-        WHERE articler.categoryId = category.id)`), },
+        sorters: [{ field: "size", order: "DESC" }],
+        customSorters: {
+          size: literal(`(SELECT COUNT(*) FROM articles
+        WHERE articler.categoryId = category.id)`),
+        },
       });
       expect(options).to.eql({
-        attributes: ['id', 'name'],
+        attributes: ["id", "name"],
         include: [],
         where: {},
-        order: [[literal(`(SELECT COUNT(*) FROM articles
-        WHERE articler.categoryId = category.id)`), 'DESC']],
+        order: [
+          [
+            literal(`(SELECT COUNT(*) FROM articles
+        WHERE articler.categoryId = category.id)`),
+            "DESC",
+          ],
+        ],
       });
     });
 
-    it('uses the defalt sorter if provided', () => {
+    it("uses the defalt sorter if provided", () => {
       const query = `
         query {
           articles {
@@ -282,19 +323,21 @@ describe('queryLoader', () => {
         }
       `;
       const info = getGraphQLResolveInfo(schema, query);
-      const options = new QueryLoader(includeModels, {defaultSorters: [{ field: 'createdAt', order: 'DESC' }]}).getFindOptions({
+      const options = new QueryLoader(includeModels, {
+        defaultSorters: [{ field: "createdAt", order: "DESC" }],
+      }).getFindOptions({
         info,
         model: ArticleModel,
       });
       expect(options).to.eql({
-        attributes: ['id', 'title', 'createdAt'],
+        attributes: ["id", "title", "createdAt"],
         include: [],
         where: {},
-        order: [['createdAt', 'DESC']],
+        order: [["createdAt", "DESC"]],
       });
     });
 
-    it('gets findOptions and whereConstraints for deeper shapes', () => {
+    it("gets findOptions and whereConstraints for deeper shapes", () => {
       const query = `
         query {
           categories {
@@ -321,35 +364,39 @@ describe('queryLoader', () => {
         model: CategoryModel,
       });
       const expectedStructure = {
-        attributes: ['id', 'name'],
-        include: [{
-          as: 'articles',
-          attributes: ['id', 'title'],
-          include: [{
-            as: 'owner',
-            attributes: ['firstname', 'lastname', 'id'],
-            model: AuthorModel,
-            required: false,
-          },
+        attributes: ["id", "name"],
+        include: [
           {
-            as: 'comments',
-            attributes: ['id', 'body'],
-            model: CommentModel,
+            as: "articles",
+            attributes: ["id", "title"],
+            include: [
+              {
+                as: "owner",
+                attributes: ["firstname", "lastname", "id"],
+                model: AuthorModel,
+                required: false,
+              },
+              {
+                as: "comments",
+                attributes: ["id", "body"],
+                model: CommentModel,
+                required: false,
+              },
+            ],
+            model: ArticleModel,
             required: false,
-          }],
-          model: ArticleModel,
-          required: false,
-          where: {
-            body: {
-              [Op.like]: '%dummy%'
-            },
-            id: {
-              [Op.gt]: '2'
+            where: {
+              body: {
+                [Op.like]: "%dummy%",
+              },
+              id: {
+                [Op.gt]: "2",
+              },
             },
           },
-        }],
+        ],
         where: {},
-      }
+      };
 
       expect(options).to.eql(expectedStructure);
     });

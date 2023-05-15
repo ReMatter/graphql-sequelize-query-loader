@@ -1,7 +1,5 @@
 /* eslint-disable import/no-cycle */
-import {
-  GraphQLResolveInfo,
-} from 'graphql';
+import { GraphQLResolveInfo } from "graphql";
 import {
   Attributes,
   FindOptions,
@@ -13,36 +11,54 @@ import {
   OrderItem,
   ProjectionAlias,
   WhereOptions,
-} from 'sequelize';
+} from "sequelize";
 
+import getSearchExpressionFilters, {
+  CustomSearchExpressions,
+} from "./getSearchExpressionFilters";
 
-import getSearchExpressionFilters, { CustomSearchExpressions } from './getSearchExpressionFilters';
-
-import { buildFilter, mergeFilter } from './buildFilter';
-import { buildOrder } from './buildOrder';
-import { SearchExpression, Sorter, Maybe, DependenciesByFieldNameByModelName, ModelAssociationMap, CustomFieldFilters, ComputedQueries } from './types';
-import { getIncludeModel } from './getIncludeModel';
-import { getFindOptionsForModel } from './getFindOptionsForModel';
+import { buildFilter, mergeFilter } from "./buildFilter";
+import { buildOrder } from "./buildOrder";
+import {
+  SearchExpression,
+  Sorter,
+  Maybe,
+  DependenciesByFieldNameByModelName,
+  ModelAssociationMap,
+  CustomFieldFilters,
+  ComputedQueries,
+} from "./types";
+import { getIncludeModel } from "./getIncludeModel";
+import { getFindOptionsForModel } from "./getFindOptionsForModel";
 
 interface ModelDict {
   [modelName: string]: ModelStatic<Model>;
 }
 
-type QueryLoaderFindOptions<M> = Omit<FindOptions<M>, 'include'> & { include?: IncludeOptions[] };
+type QueryLoaderFindOptions<M> = Omit<FindOptions<M>, "include"> & {
+  include?: IncludeOptions[];
+};
 
 class QueryLoader {
   private readonly modelsByAssociationByModelName: ModelAssociationMap = {};
 
   private readonly customFieldFilters: CustomFieldFilters = {};
 
-  private readonly dependenciesByFieldNameByModelName: DependenciesByFieldNameByModelName = {};
+  private readonly dependenciesByFieldNameByModelName: DependenciesByFieldNameByModelName =
+    {};
 
   private readonly defaultSorters: (Sorter | OrderItem)[] = [];
 
   /**
    * Initialize the queryLoader utility
    */
-  constructor(private readonly models: ModelDict, options?: { defaultSorters?: readonly (Sorter | OrderItem)[], customFieldFilters?: CustomFieldFilters }) {
+  constructor(
+    private readonly models: ModelDict,
+    options?: {
+      defaultSorters?: readonly (Sorter | OrderItem)[];
+      customFieldFilters?: CustomFieldFilters;
+    }
+  ) {
     const includeModels: ModelAssociationMap = Object.values(models).reduce(
       (acc, model) => ({
         [model.tableName]: {
@@ -51,35 +67,39 @@ class QueryLoader {
               [association.as]: association.target,
               ...associationAcc,
             }),
-            {},
+            {}
           ),
         },
         ...acc,
       }),
-      {},
+      {}
     );
 
-    const dependenciesByFieldNameByModelName = Object.values(models).reduce((acc, model) => {
-      const modelAttributes = model.getAttributes();
-      const dependenciesByFieldName = Object.entries(modelAttributes)
-        .filter(([, attributes]) => attributes.dependencies)
-        .reduce(
-          (dependencyAcc, [columnName, attributes]) => ({
-            ...dependencyAcc,
-            [columnName]: attributes.dependencies,
-          }),
-          {},
-        );
+    const dependenciesByFieldNameByModelName = Object.values(models).reduce(
+      (acc, model) => {
+        const modelAttributes = model.getAttributes();
+        const dependenciesByFieldName = Object.entries(modelAttributes)
+          .filter(([, attributes]) => attributes.dependencies)
+          .reduce(
+            (dependencyAcc, [columnName, attributes]) => ({
+              ...dependencyAcc,
+              [columnName]: attributes.dependencies,
+            }),
+            {}
+          );
 
-      return {
-        ...acc,
-        [model.name]: dependenciesByFieldName,
-      };
-    }, {});
+        return {
+          ...acc,
+          [model.name]: dependenciesByFieldName,
+        };
+      },
+      {}
+    );
 
     this.modelsByAssociationByModelName = includeModels;
     this.customFieldFilters = options?.customFieldFilters ?? {};
-    this.dependenciesByFieldNameByModelName = dependenciesByFieldNameByModelName;
+    this.dependenciesByFieldNameByModelName =
+      dependenciesByFieldNameByModelName;
     this.defaultSorters.push(...(options?.defaultSorters ?? []));
   }
 
@@ -122,7 +142,8 @@ class QueryLoader {
     const { attributes, include, where, paranoid } = getFindOptionsForModel({
       model: rootModel,
       selection: rootSelection,
-      dependenciesByFieldNameByModelName: this.dependenciesByFieldNameByModelName,
+      dependenciesByFieldNameByModelName:
+        this.dependenciesByFieldNameByModelName,
       modelsByAssociationByModelName: this.modelsByAssociationByModelName,
       customFieldFilters: this.customFieldFilters,
       variables: info.variableValues,
@@ -154,7 +175,11 @@ class QueryLoader {
         const associationFilter = filter[associationName];
 
         if (associationFilter) {
-          const associationModel = getIncludeModel(rootModel, associationName, this.modelsByAssociationByModelName);
+          const associationModel = getIncludeModel(
+            rootModel,
+            associationName,
+            this.modelsByAssociationByModelName
+          );
 
           includesWithFilter.push({
             ...includeable,
@@ -162,7 +187,7 @@ class QueryLoader {
               [Op.and]: buildFilter(
                 associationModel,
                 associationFilter,
-                associationName,
+                associationName
               ) as unknown as WhereOptions,
             },
           });
@@ -180,7 +205,7 @@ class QueryLoader {
       attributes,
       include: filter ? includesWithFilter : include,
       ...(paranoid ? { paranoid } : {}),
-      where: (filter ? { [Op.and]: conditions } : {}),
+      where: filter ? { [Op.and]: conditions } : {},
     };
 
     // @ts-expect-error TS(2345) FIXME: Argument of type 'WhereOptions<M> | undefined' is ... Remove this comment to see the full error message
@@ -191,7 +216,7 @@ class QueryLoader {
         // @ts-expect-error TS(2345) FIXME: Argument of type 'Maybe<readonly SearchExpression[... Remove this comment to see the full error message
         searchExpressions,
         customSearchExpressions,
-        rootModel,
+        rootModel
       );
       findOptions.where = mergeFilter(findOptions.where, expressionFilters);
     }
@@ -207,9 +232,17 @@ class QueryLoader {
             // and those have the following pattern: ['fieldName', 'DESC | ASC'].
             // Some sorter arrays might have length > 2 and those are for more complex sorting,
             // such as sorting by nested fields, and we need to ignore them to not break the select.
-            .filter((o) => Array.isArray(o) && o.length === 2 && typeof o[0] === 'string')
+            .filter(
+              (o) =>
+                Array.isArray(o) && o.length === 2 && typeof o[0] === "string"
+            )
             .map((field: OrderItem) => (field as [string, any])[0])
-            .filter((fieldName) => !(findOptions.attributes as ((string | ProjectionAlias)[])).includes(fieldName)),
+            .filter(
+              (fieldName) =>
+                !(
+                  findOptions.attributes as (string | ProjectionAlias)[]
+                ).includes(fieldName)
+            )
         );
       }
     }

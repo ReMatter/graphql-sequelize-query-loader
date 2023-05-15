@@ -1,5 +1,16 @@
-import { AbstractDataType, AbstractDataTypeConstructor, ColumnOptions, FindAttributeOptions, IncludeOptions, Model, ModelStatic, Model as SequelizeModel, VirtualDataType, WhereOptions } from "sequelize";
-import { Fn, Literal } from 'sequelize/types/utils';
+import {
+  AbstractDataType,
+  AbstractDataTypeConstructor,
+  ColumnOptions,
+  FindAttributeOptions,
+  IncludeOptions,
+  Model,
+  ModelStatic,
+  Model as SequelizeModel,
+  VirtualDataType,
+  WhereOptions,
+} from "sequelize";
+import { Fn, Literal } from "sequelize/types/utils";
 
 export type SequelizeDependency<M extends SequelizeModel = SequelizeModel> = {
   dependentAssociation: keyof M;
@@ -21,13 +32,13 @@ export type Scalars = {
 };
 
 export type SearchExpression = {
-  readonly fields: ReadonlyArray<Scalars['String']>;
-  readonly searchTerm: Scalars['String'];
+  readonly fields: ReadonlyArray<Scalars["String"]>;
+  readonly searchTerm: Scalars["String"];
 };
 
 export type Sorter = {
-  readonly field: Scalars['String'];
-  readonly order: Scalars['String'];
+  readonly field: Scalars["String"];
+  readonly order: Scalars["String"];
 };
 
 export type ComputedAttributes<M extends SequelizeModel> = {
@@ -36,23 +47,25 @@ export type ComputedAttributes<M extends SequelizeModel> = {
 
 export type IncludeAsCallback = (includeAs: string) => [Literal | Fn, string];
 
-declare module 'sequelize' {
-
-  export interface ModelAttributeColumnOptions<M extends SequelizeModel = SequelizeModel> extends ColumnOptions {
+declare module "sequelize" {
+  export interface ModelAttributeColumnOptions<
+    M extends SequelizeModel = SequelizeModel
+  > extends ColumnOptions {
     dependencies?: SequelizeDependency<M>[];
   }
 
   /**
    * Adds type-safety support to our extension for 'includeAs' in 'virtual columns'.
    */
-  export interface VirtualDataTypeConstructor extends AbstractDataTypeConstructor {
+  export interface VirtualDataTypeConstructor
+    extends AbstractDataTypeConstructor {
     new <T extends AbstractDataTypeConstructor | AbstractDataType>(
       ReturnType: T,
-      fields?: string[] | IncludeAsCallback,
+      fields?: string[] | IncludeAsCallback
     ): VirtualDataType<T>;
     <T extends AbstractDataTypeConstructor | AbstractDataType>(
       ReturnType: T,
-      fields?: string[] | IncludeAsCallback,
+      fields?: string[] | IncludeAsCallback
     ): VirtualDataType<T>;
   }
 }

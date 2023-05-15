@@ -1,4 +1,10 @@
-import { Attributes, DataTypes, Model, ModelStatic, VirtualDataType } from "sequelize";
+import {
+  Attributes,
+  DataTypes,
+  Model,
+  ModelStatic,
+  VirtualDataType,
+} from "sequelize";
 import { ComputedAttributes, IncludeAsCallback } from "./types";
 import { Literal } from "sequelize/types/utils";
 
@@ -14,7 +20,7 @@ import { Literal } from "sequelize/types/utils";
  */
 export function getComputedAttributes<M extends Model>(
   model?: ModelStatic<M>,
-  includedAs = model?.name,
+  includedAs = model?.name
 ): ComputedAttributes<M> {
   if (!model) {
     return {};
@@ -26,8 +32,10 @@ export function getComputedAttributes<M extends Model>(
     const meta = attributes[key];
     if (meta.type instanceof DataTypes.VIRTUAL) {
       const callback = (meta.type as VirtualDataType<any>).fields;
-      if (typeof callback === 'function') {
-        const [expression] = (callback as IncludeAsCallback)(includedAs as string);
+      if (typeof callback === "function") {
+        const [expression] = (callback as IncludeAsCallback)(
+          includedAs as string
+        );
         acc[key] = expression as Literal;
       }
     }

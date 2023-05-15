@@ -11,8 +11,20 @@
  * @returns the array that should contain all model and association-model includes
  */
 
-import { ArgumentNode, FieldNode, GraphQLResolveInfo, SelectionNode, VariableNode } from "graphql";
-import { Association, FindAttributeOptions, Model, ModelStatic, ProjectionAlias } from "sequelize";
+import {
+  ArgumentNode,
+  FieldNode,
+  GraphQLResolveInfo,
+  SelectionNode,
+  VariableNode,
+} from "graphql";
+import {
+  Association,
+  FindAttributeOptions,
+  Model,
+  ModelStatic,
+  ProjectionAlias,
+} from "sequelize";
 import { ComputedQueries } from "./types";
 
 // TODO fix this, it fails if the computed query has arguments in place
@@ -27,7 +39,7 @@ const getComputedQueryVariables = (fieldNode: FieldNode) =>
 export function getSelectedAttributes<M extends Model>(args: {
   model: ModelStatic<M>;
   selections: ReadonlyArray<SelectionNode> | undefined;
-  variables?: GraphQLResolveInfo['variableValues'];
+  variables?: GraphQLResolveInfo["variableValues"];
   computedQueries?: ComputedQueries<unknown, unknown>;
 }): FindAttributeOptions {
   const { model, selections, variables, computedQueries } = args;
@@ -78,13 +90,15 @@ export function getSelectedAttributes<M extends Model>(args: {
     } = attribute;
     // @ts-expect-error TS(2532) FIXME: Object is possibly 'undefined'.
     const computedQuery = computedQueries[computedAttributeQueryName];
-    const vars = computedQueryVars
-      .map(([nameInMethod, nameInVariables]) => ({
-        // @ts-expect-error TS(2532) FIXME: Object is possibly 'undefined'.
-        [nameInMethod]: variables[nameInVariables],
-      }))
+    const vars = computedQueryVars.map(([nameInMethod, nameInVariables]) => ({
+      // @ts-expect-error TS(2532) FIXME: Object is possibly 'undefined'.
+      [nameInMethod]: variables[nameInVariables],
+    }));
     // we are pushing [query: literal(), attributeName: string]
-    selectedAttributes.add([computedQuery(Object.assign({}, ...vars)), computedAttributeName]);
+    selectedAttributes.add([
+      computedQuery(Object.assign({}, ...vars)),
+      computedAttributeName,
+    ]);
   });
 
   // Always include the primary key of the model

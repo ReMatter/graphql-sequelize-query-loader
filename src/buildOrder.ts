@@ -1,6 +1,6 @@
-import { literal, Model, ModelStatic, Order, OrderItem } from 'sequelize';
-import { Sorter } from './types';
-import { getComputedAttributes } from './getComputedAttributes';
+import { literal, Model, ModelStatic, Order, OrderItem } from "sequelize";
+import { Sorter } from "./types";
+import { getComputedAttributes } from "./getComputedAttributes";
 
 /**
  * Allow to map the list of attributes to sort by, including these which are virtual/computed fields
@@ -13,12 +13,12 @@ import { getComputedAttributes } from './getComputedAttributes';
 export function buildOrder<M extends Model>(
   model: ModelStatic<M>,
   sorters: readonly (OrderItem | Sorter)[],
-  customSorters?: { [key: string]: Order },
+  customSorters?: { [key: string]: Order }
 ): OrderItem[] {
   const computedAttributes = getComputedAttributes(model);
 
   return sorters.map((sorter) => {
-    if (typeof sorter === 'object' && 'field' in sorter && 'order' in sorter) {
+    if (typeof sorter === "object" && "field" in sorter && "order" in sorter) {
       if (computedAttributes[sorter.field as keyof M]) {
         return [literal(sorter.field), sorter.order];
       }
@@ -27,8 +27,8 @@ export function buildOrder<M extends Model>(
         return [customSorters[sorter.field], sorter.order] as OrderItem;
       }
 
-      if (sorter.field.includes('.')) {
-        return [...sorter.field.split('.'), sorter.order] as OrderItem;
+      if (sorter.field.includes(".")) {
+        return [...sorter.field.split("."), sorter.order] as OrderItem;
       }
 
       return [sorter.field, sorter.order];
@@ -38,4 +38,7 @@ export function buildOrder<M extends Model>(
 }
 
 export const hasComputedAttributes = (order: OrderItem[]): boolean =>
-  order.some((item) => Array.isArray(item) && typeof item[0] === 'object' && 'val' in item[0]);
+  order.some(
+    (item) =>
+      Array.isArray(item) && typeof item[0] === "object" && "val" in item[0]
+  );

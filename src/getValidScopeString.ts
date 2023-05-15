@@ -4,7 +4,7 @@
  * @param fieldConditionString - scope string to be checked
  */
 export function getValidScopeString(fieldConditionString: string): string[] {
-  const splitString = fieldConditionString.split('|');
+  const splitString = fieldConditionString.split("|");
   if (splitString.length < 3) {
     throw Error(`Incorrect Parts supplied for scope: ${fieldConditionString}`);
   }
@@ -12,7 +12,7 @@ export function getValidScopeString(fieldConditionString: string): string[] {
   const operation = splitString[1].trim();
   const value = splitString[2].trim();
 
-  if (field === '' || operation === '' || value === '') {
+  if (field === "" || operation === "" || value === "") {
     throw Error(`Incorrect Parts supplied for scope: ${fieldConditionString}`);
   }
   return splitString;

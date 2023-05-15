@@ -7,7 +7,7 @@
   "scripts": {
     "test": "yarn ts-mocha -p tsconfig.json \"src/**/*.spec.ts\"",
     "build": "tsc",
-    "format": "prettier --write \"src/**/*.ts\" \"src/**/*.js\"",
+    "format": "prettier --write \"src/**/*.ts\"",
     "lint": "tslint -p tsconfig.json",
     "prepublishOnly": "npm test && npm run lint",
     "preversion": "npm run lint",
@@ -47,7 +47,7 @@
     "chai": "^4.3.7",
     "codecov": "^3.5.0",
     "eslint": "^8.40.0",
-    "prettier": "^1.18.2",
+    "prettier": "^2.8.8",
     "sqlite3": "^5.1.6",
     "ts-mocha": "^10.0.0",
     "typescript": "^5.0.4"
