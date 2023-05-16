@@ -72,8 +72,6 @@ describe("getSelectedAttributes()", () => {
     assert.sameMembers(selectedAttributes as string[], expectedAttributes);
   });
 
-  it.skip("test ccid and refactor to make it parametrizable", () => {});
-
   describe("computedAttributes", () => {
     const computedQueries: ComputedQueries<
       GqlAuthor,
