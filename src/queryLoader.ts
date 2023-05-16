@@ -1,4 +1,3 @@
-/* eslint-disable import/no-cycle */
 import { GraphQLResolveInfo } from "graphql";
 import {
   Attributes,

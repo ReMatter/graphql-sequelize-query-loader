@@ -12,14 +12,12 @@
  */
 
 import {
-  ArgumentNode,
   FieldNode,
   GraphQLResolveInfo,
   SelectionNode,
   VariableNode,
 } from "graphql";
 import {
-  Association,
   FindAttributeOptions,
   Model,
   ModelStatic,
@@ -33,7 +31,7 @@ import { ComputedQueries } from "./types";
 const getComputedQueryVariables = (fieldNode: FieldNode) =>
   fieldNode.arguments?.map((a) => [
     a.name.value,
-    ((a as ArgumentNode).value as VariableNode).name.value,
+    (a.value as VariableNode).name.value,
   ]) ?? [];
 
 export function getSelectedAttributes<M extends Model>(args: {
@@ -74,7 +72,7 @@ export function getSelectedAttributes<M extends Model>(args: {
       // if it is not part of the model and we know how to compute it, let's do that
       computedAttributes.push(selection);
     } else if (associations.includes(fieldName)) {
-      const { sourceKey } = model.associations[fieldName] as Association;
+      const { sourceKey } = model.associations[fieldName];
       if (sourceKey) {
         selectedAttributes.add(sourceKey);
       }

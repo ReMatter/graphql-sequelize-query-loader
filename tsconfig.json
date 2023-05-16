@@ -6,8 +6,9 @@
     "outDir": "./lib",
     "strict": true,
     "watch": true,
-    "skipLibCheck": true
+    "skipLibCheck": true,
+    "allowJs": true
   },
-  "include": ["src"],
+  "include": ["src", ".eslintrc.cjs"],
   "exclude": ["node_modules"]
 }
