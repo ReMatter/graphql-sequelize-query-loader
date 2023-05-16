@@ -2,8 +2,8 @@ import { literal, Model, ModelStatic, Op, WhereOptions } from "sequelize";
 import { Literal } from "sequelize/types/utils";
 
 import { SearchExpression } from "./types";
-import escapeString from "escape-sql-string";
 import { getComputedAttributes } from "./getComputedAttributes";
+import { escape } from "sequelize/lib/sql-string";
 
 export type CustomSearchExpressions = {
   [name: string]: (searchTerm: string) => Literal;
@@ -38,9 +38,7 @@ export default function getSearchExpressionFilters<M extends Model>(
 
               const literalExpression = computedAttributes[field as keyof M];
               if (literalExpression) {
-                const searchTerm = escapeString(
-                  `%${searchExpression.searchTerm}%`
-                );
+                const searchTerm = escape(`%${searchExpression.searchTerm}%`);
                 return literal(`(${literalExpression.val}) LIKE ${searchTerm}`);
               }
 

@@ -1,15 +1,16 @@
 import {
+  Attributes,
   literal,
   Model,
-  ModelCtor,
+  ModelStatic,
   Op,
   WhereAttributeHash,
   WhereOptions,
   WhereValue,
 } from "sequelize";
 import { Literal } from "sequelize/types/utils";
+import { escape } from "sequelize/lib/sql-string";
 
-import escapeString from "escape-sql-string";
 import { getComputedAttributes } from "./getComputedAttributes";
 
 const OperatorMap = {
@@ -63,20 +64,20 @@ const buildLiteralFilter = (
   literalExpression: Literal,
   rawValue: WhereValue
 ): Literal => {
-  const expression = `(${literalExpression.val})`;
+  const expression = `(${literalExpression.val as string})`;
 
   if (typeof rawValue === "object") {
     const operator = Object.getOwnPropertySymbols(rawValue)[0];
     const operatorLiteral = OperatorMap[operator];
     if (operatorLiteral) {
       // @ts-expect-error TS(2531) FIXME: Object is possibly 'null'.
-      const escapedValue = escapeString(rawValue[operator]);
+      const escapedValue = escape(rawValue[operator]);
       return literal(`${expression} ${operatorLiteral} ${escapedValue}`);
     }
   }
 
   // @ts-expect-error TS(2345) FIXME: Argument of type 'WhereValue<any>' is not assignab... Remove this comment to see the full error message
-  const escapedValue = escapeString(rawValue);
+  const escapedValue = escape(rawValue);
 
   if (Array.isArray(rawValue))
     return literal(`${expression} IN (${escapedValue})`);
@@ -94,8 +95,8 @@ const buildLiteralFilter = (
  * @returns list of conditions
  */
 export function buildFilter<M extends Model>(
-  model: ModelCtor<M>,
-  filter?: WhereOptions<M>,
+  model: ModelStatic<M>,
+  filter?: WhereOptions<Attributes<M>>,
   includeAs: string = model.name
 ): WhereOptions<M> {
   if (!filter) return [];
@@ -119,7 +120,6 @@ export function buildFilter<M extends Model>(
             {}, // Without this element, Sequelize will throw an error. See more: https://github.com/sequelize/sequelize/issues/10142
             ...Object.entries(object).map(([innerKey, innerValue]) => {
               const literalMapping = computedAttributes[innerKey];
-              // @ts-expect-error TS(2345) FIXME: Argument of type 'unknown' is not assignable to pa... Remove this comment to see the full error message
               if (literalMapping)
                 return buildLiteralFilter(literalMapping, innerValue);
               return { [innerKey]: innerValue } as WhereAttributeHash<M>;
