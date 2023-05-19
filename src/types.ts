@@ -8,6 +8,7 @@ import {
   ModelStatic,
   Model as SequelizeModel,
   VirtualDataType,
+  WhereAttributeHash,
   WhereOptions,
 } from "sequelize";
 import { Fn, Literal } from "sequelize/types/utils";
@@ -30,6 +31,11 @@ export type Scalars = {
   Date: any;
   JSON: any;
 };
+
+export type WhereAttributeHashOnly<TAttributes> = Extract<
+  WhereAttributeHash<TAttributes>,
+  WhereOptions<TAttributes>
+>;
 
 export type SearchExpression = {
   readonly fields: ReadonlyArray<Scalars["String"]>;

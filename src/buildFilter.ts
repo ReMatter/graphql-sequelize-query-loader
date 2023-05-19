@@ -5,54 +5,16 @@ import {
   ModelStatic,
   Op,
   WhereAttributeHash,
+  WhereAttributeHashValue,
   WhereOptions,
-  WhereValue,
 } from "sequelize";
 import { Literal } from "sequelize/types/utils";
-import { escape } from "sequelize/lib/sql-string";
+import { Escapable, escape } from "sequelize/lib/sql-string";
 
 import { getComputedAttributes } from "./getComputedAttributes";
+import { WhereAttributeHashOnly } from "./types";
 
-const OperatorMap = {
-  [Op.eq]: "=",
-  [Op.ne]: "!=",
-  [Op.gte]: ">=",
-  [Op.gt]: ">",
-  [Op.lte]: "<=",
-  [Op.lt]: "<",
-  [Op.not]: "IS NOT",
-  [Op.is]: "IS",
-  [Op.in]: "IN",
-  [Op.notIn]: "NOT IN",
-  [Op.like]: "LIKE",
-  [Op.notLike]: "NOT LIKE",
-  [Op.iLike]: "ILIKE",
-  [Op.notILike]: "NOT ILIKE",
-  [Op.startsWith]: "LIKE",
-  [Op.endsWith]: "LIKE",
-  [Op.substring]: "LIKE",
-  [Op.regexp]: "~",
-  [Op.notRegexp]: "!~",
-  [Op.iRegexp]: "~*",
-  [Op.notIRegexp]: "!~*",
-  [Op.between]: "BETWEEN",
-  [Op.notBetween]: "NOT BETWEEN",
-  [Op.overlap]: "&&",
-  [Op.contains]: "@>",
-  [Op.contained]: "<@",
-  [Op.adjacent]: "-|-",
-  [Op.strictLeft]: "<<",
-  [Op.strictRight]: ">>",
-  [Op.noExtendRight]: "&<",
-  [Op.noExtendLeft]: "&>",
-  [Op.any]: "ANY",
-  [Op.all]: "ALL",
-  [Op.and]: " AND ",
-  [Op.or]: " OR ",
-  [Op.col]: "COL",
-  [Op.placeholder]: "$$PLACEHOLDER$$",
-  [Op.match]: "@@",
-};
+import { OperatorMap } from "sequelize/lib/dialects/abstract/query-generator/operators";
 
 /**
  * Parses virtual/computed fields into Literal
@@ -60,24 +22,29 @@ const OperatorMap = {
  * @param rawValue the original filter value
  * @returns a Literal
  */
-const buildLiteralFilter = (
+const buildLiteralFilter = <T>(
   literalExpression: Literal,
-  rawValue: WhereValue
+  rawValue: NonNullable<WhereAttributeHashValue<T>>
 ): Literal => {
   const expression = `(${literalExpression.val as string})`;
 
   if (typeof rawValue === "object") {
-    const operator = Object.getOwnPropertySymbols(rawValue)[0];
-    const operatorLiteral = OperatorMap[operator];
+    const operator = Object.getOwnPropertySymbols(
+      rawValue
+    )[0] as unknown as typeof Op; // getOwnPropertySymbols does not preserve the type
+    // Need to type better the OperatorMap
+    // @ts-expect-error Type 'OpTypes' cannot be used as an index type.
+    const operatorLiteral = OperatorMap[operator] as string;
     if (operatorLiteral) {
-      // @ts-expect-error TS(2531) FIXME: Object is possibly 'null'.
-      const escapedValue = escape(rawValue[operator]);
+      const escapedValue = escape(
+        // @ts-expect-error Type 'OpTypes' cannot be used as an index type.
+        rawValue[operator] as Escapable | Escapable[]
+      );
       return literal(`${expression} ${operatorLiteral} ${escapedValue}`);
     }
   }
 
-  // @ts-expect-error TS(2345) FIXME: Argument of type 'WhereValue<any>' is not assignab... Remove this comment to see the full error message
-  const escapedValue = escape(rawValue);
+  const escapedValue = escape(rawValue as Escapable | Escapable[]);
 
   if (Array.isArray(rawValue))
     return literal(`${expression} IN (${escapedValue})`);
@@ -96,7 +63,7 @@ const buildLiteralFilter = (
  */
 export function buildFilter<M extends Model>(
   model: ModelStatic<M>,
-  filter?: WhereOptions<Attributes<M>>,
+  filter?: WhereAttributeHashOnly<Attributes<M>>,
   includeAs: string = model.name
 ): WhereOptions<M> {
   if (!filter) return [];
@@ -108,7 +75,9 @@ export function buildFilter<M extends Model>(
   ];
 
   return keys.map((key) => {
-    const rawValue = filter[key];
+    const rawValue = filter[key as string] as WhereAttributeHashValue<
+      Attributes<M>
+    >;
     if (computedAttributes[key])
       return buildLiteralFilter(computedAttributes[key], rawValue);
 
@@ -116,15 +85,18 @@ export function buildFilter<M extends Model>(
       return {
         [key]: [
           {}, // Without this element, Sequelize will throw an error. See more: https://github.com/sequelize/sequelize/issues/10142
-          ...rawValue.map((object) => [
-            {}, // Without this element, Sequelize will throw an error. See more: https://github.com/sequelize/sequelize/issues/10142
-            ...Object.entries(object).map(([innerKey, innerValue]) => {
-              const literalMapping = computedAttributes[innerKey];
-              if (literalMapping)
-                return buildLiteralFilter(literalMapping, innerValue);
-              return { [innerKey]: innerValue } as WhereAttributeHash<M>;
-            }),
-          ]),
+          // TODO next casting should not be necessary with the isArray type guard
+          ...(rawValue as WhereAttributeHashValue<Attributes<M>>[]).map(
+            (object) => [
+              {}, // Without this element, Sequelize will throw an error. See more: https://github.com/sequelize/sequelize/issues/10142
+              ...Object.entries(object).map(([innerKey, innerValue]) => {
+                const literalMapping = computedAttributes[innerKey];
+                if (literalMapping)
+                  return buildLiteralFilter(literalMapping, innerValue);
+                return { [innerKey]: innerValue } as WhereAttributeHash<M>;
+              }),
+            ]
+          ),
         ],
       } as WhereAttributeHash<M>;
     }

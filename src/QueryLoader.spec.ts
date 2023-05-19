@@ -1,6 +1,6 @@
 import { expect } from "chai";
 
-import { parse, buildSchema, GraphQLField } from "graphql";
+import { parse, buildSchema, GraphQLField, FieldNode } from "graphql";
 import { Op, WhereAttributeHashValue, literal } from "sequelize";
 import ArticleModel from "./__mocks__/models/Article";
 import CommentModel from "./__mocks__/models/Comment";
@@ -43,8 +43,8 @@ const getGraphQLResolveInfo = (schema: GraphQLSchema, query: string) => {
     executionContext,
     operationRootType,
     executionContext.operation.selectionSet,
-    Object.create(null),
-    Object.create(null)
+    Object.create(null) as { [key: string]: FieldNode[] },
+    Object.create(null) as { [key: string]: boolean }
   );
 
   const responseName = Object.keys(fields)[0];
