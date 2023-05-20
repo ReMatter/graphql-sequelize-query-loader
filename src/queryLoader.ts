@@ -12,7 +12,8 @@ import {
   WhereOptions,
 } from "sequelize";
 
-import getSearchExpressionFilters, {
+import {
+  getSearchExpressionFilters,
   CustomSearchExpressions,
 } from "./getSearchExpressionFilters";
 

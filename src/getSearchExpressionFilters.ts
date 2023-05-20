@@ -13,7 +13,7 @@ export type CustomSearchExpressions = {
  * DO NOT USE THIS FUNCTION DIRECTLY
  * SEND searchExpressions AND customExpressions TO queryLoader.getFindOptions
  */
-export default function getSearchExpressionFilters<M extends Model>(
+export function getSearchExpressionFilters<M extends Model>(
   searchExpressions: readonly SearchExpression[],
   customExpressions?: CustomSearchExpressions,
   model?: ModelStatic<M>
