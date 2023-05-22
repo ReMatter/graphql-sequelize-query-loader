@@ -4,6 +4,15 @@ import { expect } from "chai";
 import { Op, literal } from "sequelize";
 
 describe("getSearchExpressionFilters()", () => {
+  it("should handle empty search term", () => {
+    expect(
+      getSearchExpressionFilters(
+        [{ fields: ["title"], searchTerm: "" }],
+        ArticleModel
+      )
+    ).to.eql({});
+  });
+
   it("should make a simple search over one field", () => {
     expect(
       getSearchExpressionFilters(

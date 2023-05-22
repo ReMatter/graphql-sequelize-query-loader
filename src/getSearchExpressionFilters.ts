@@ -26,7 +26,7 @@ export function getSearchExpressionFilters<M extends Model>(
 ): WhereOptions<Attributes<M>> {
   const computedAttributes = getComputedAttributes(model);
   // filter out search terms of `''`
-  return searchExpressions?.filter(
+  return searchExpressions.filter(
     (searchExpression) => searchExpression.searchTerm
   ).length
     ? {
