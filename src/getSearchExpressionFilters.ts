@@ -1,12 +1,18 @@
-import { literal, Model, ModelStatic, Op, WhereOptions } from "sequelize";
-import { Literal } from "sequelize/types/utils";
+import {
+  Attributes,
+  literal,
+  Model,
+  ModelStatic,
+  Op,
+  WhereOptions,
+} from "sequelize";
 
 import { SearchExpression } from "./types";
 import { getComputedAttributes } from "./getComputedAttributes";
 import { escape } from "sequelize/lib/sql-string";
 
-export type CustomSearchExpressions = {
-  [name: string]: (searchTerm: string) => Literal;
+export type CustomSearchExpressions<M extends Model> = {
+  [name: string]: (searchTerm: string) => WhereOptions<M>;
 };
 
 /**
@@ -15,9 +21,9 @@ export type CustomSearchExpressions = {
  */
 export function getSearchExpressionFilters<M extends Model>(
   searchExpressions: readonly SearchExpression[],
-  customExpressions?: CustomSearchExpressions,
-  model?: ModelStatic<M>
-): WhereOptions<M> {
+  model: ModelStatic<M>,
+  customExpressions?: CustomSearchExpressions<Attributes<M>>
+): WhereOptions<Attributes<M>> {
   const computedAttributes = getComputedAttributes(model);
   // filter out search terms of `''`
   return searchExpressions?.filter(

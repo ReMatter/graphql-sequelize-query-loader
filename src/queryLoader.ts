@@ -211,12 +211,11 @@ class QueryLoader {
     // @ts-expect-error TS(2345) FIXME: Argument of type 'WhereOptions<M> | undefined' is ... Remove this comment to see the full error message
     findOptions.where = mergeFilter(findOptions.where, where);
 
-    if (searchExpressions || customSearchExpressions) {
+    if (searchExpressions) {
       const expressionFilters = getSearchExpressionFilters(
-        // @ts-expect-error TS(2345) FIXME: Argument of type 'Maybe<readonly SearchExpression[... Remove this comment to see the full error message
         searchExpressions,
-        customSearchExpressions,
-        rootModel
+        rootModel,
+        customSearchExpressions
       );
       findOptions.where = mergeFilter(findOptions.where, expressionFilters);
     }

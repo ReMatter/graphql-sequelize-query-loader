@@ -8,7 +8,6 @@ describe("getSearchExpressionFilters()", () => {
     expect(
       getSearchExpressionFilters(
         [{ fields: ["title"], searchTerm: "dog" }],
-        undefined,
         ArticleModel
       )
     ).to.eql({
@@ -20,7 +19,6 @@ describe("getSearchExpressionFilters()", () => {
     expect(
       getSearchExpressionFilters(
         [{ fields: ["title", "description"], searchTerm: "dog" }],
-        undefined,
         ArticleModel
       )
     ).to.eql({
@@ -40,13 +38,13 @@ describe("getSearchExpressionFilters()", () => {
     expect(
       getSearchExpressionFilters(
         [{ fields: ["title"], searchTerm: "dog" }],
+        ArticleModel,
         {
           title: (searchTerm) =>
             literal(
               `SELECT EXISTS( SELECT 1 FROM article WHERE article.id = article.id AND title LIKE '%${searchTerm}%'`
             ),
-        },
-        ArticleModel
+        }
       )
     ).to.eql({
       [Op.and]: [
@@ -69,13 +67,13 @@ describe("getSearchExpressionFilters()", () => {
     expect(
       getSearchExpressionFilters(
         [{ fields: ["title", "description"], searchTerm: "dog" }],
+        ArticleModel,
         {
           title: (searchTerm) =>
             literal(
               `SELECT EXISTS( SELECT 1 FROM article WHERE article.id = article.id AND title LIKE '%${searchTerm}%'`
             ),
-        },
-        ArticleModel
+        }
       )
     ).to.eql({
       [Op.and]: [
@@ -99,8 +97,8 @@ describe("getSearchExpressionFilters()", () => {
     expect(
       getSearchExpressionFilters(
         [{ fields: ["title"], searchTerm: "dog" }],
+        ArticleModel,
         {
-          // TODO fix typing to allow this
           // TODO if we allow navigation through $$ like $comments.body$ we should auto include that model.
           // Make integration tests for that.
           title: (searchTerm) => ({
@@ -109,8 +107,7 @@ describe("getSearchExpressionFilters()", () => {
               { description: { [Op.like]: `%${searchTerm}%` } },
             ],
           }),
-        },
-        ArticleModel
+        }
       )
     ).to.eql({
       [Op.and]: [
