@@ -39,7 +39,7 @@ export function getFindOptionsForModel<M extends Model>(args: {
     dependenciesByFieldNameByModelName,
     modelsByAssociationByModelName,
     customFieldFilters,
-    variables,
+    variables = {},
     root,
     fragments,
     computedQueries,
@@ -50,15 +50,16 @@ export function getFindOptionsForModel<M extends Model>(args: {
     ? unwrapPaginatedSelections(selection)
     : selection.selectionSet?.selections;
 
-  // @ts-expect-error TS(2532) FIXME: Object is possibly 'undefined'.
-  const selectionsWithFragmentsReplaced = selections.flatMap((rawSelection) => {
-    const isFragment = rawSelection.kind === "FragmentSpread";
-    return isFragment
-      ? // @ts-expect-error TS(2532) FIXME: Object is possibly 'undefined'.
-        fragments[(rawSelection as FieldNode).name.value]?.selectionSet
-          .selections
-      : rawSelection;
-  }) as readonly FieldNode[];
+  const selectionsWithFragmentsReplaced = selections?.flatMap(
+    (rawSelection) => {
+      const isFragment = rawSelection.kind === "FragmentSpread";
+      return (
+        isFragment
+          ? fragments?.[rawSelection.name.value]?.selectionSet.selections
+          : rawSelection
+      ) as FieldNode;
+    }
+  );
 
   const attributes = getSelectedAttributes({
     model,
@@ -69,7 +70,7 @@ export function getFindOptionsForModel<M extends Model>(args: {
 
   const include = getSelectedIncludes({
     model,
-    selections: selectionsWithFragmentsReplaced,
+    selections: selectionsWithFragmentsReplaced as readonly FieldNode[],
     dependenciesByFieldNameByModelName,
     modelsByAssociationByModelName,
     customFieldFilters,
@@ -85,8 +86,9 @@ export function getFindOptionsForModel<M extends Model>(args: {
   );
 
   const getBooleanArgumentByName = (name: string) => {
-    // @ts-expect-error TS(2532) FIXME: Object is possibly 'undefined'.
-    const argument = selection.arguments.find((arg) => arg.name.value === name);
+    const argument = selection.arguments?.find(
+      (arg) => arg.name.value === name
+    );
     return (argument?.value as BooleanValueNode | null)?.value;
   };
 
