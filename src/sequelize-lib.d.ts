@@ -1,3 +1,7 @@
+declare module "sequelize/lib/operators" {
+  type Op = Record<string, symbol>;
+  export default Op;
+}
 declare module "sequelize/lib/sql-string" {
   type Escapable = undefined | null | boolean | number | string | Date;
 
