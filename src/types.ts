@@ -1,19 +1,19 @@
 import {
   AbstractDataType,
   AbstractDataTypeConstructor,
+  Attributes,
   ColumnOptions,
   FindAttributeOptions,
   IncludeOptions,
   Model,
   ModelStatic,
-  Model as SequelizeModel,
   VirtualDataType,
   WhereAttributeHash,
   WhereOptions,
 } from "sequelize";
 import { Fn, Literal } from "sequelize/types/utils";
 
-export type SequelizeDependency<M extends SequelizeModel = SequelizeModel> = {
+export type SequelizeDependency<M extends Model = Model> = {
   dependentAssociation: keyof M;
   paranoid: boolean;
   required?: boolean;
@@ -47,16 +47,15 @@ export type Sorter = {
   readonly order: Scalars["String"];
 };
 
-export type ComputedAttributes<M extends SequelizeModel> = {
-  [key in keyof M]?: Literal;
+export type ComputedAttributes<M extends Model> = {
+  [key in keyof Attributes<M>]?: Literal;
 };
 
 export type IncludeAsCallback = (includeAs: string) => [Literal | Fn, string];
 
 declare module "sequelize" {
-  export interface ModelAttributeColumnOptions<
-    M extends SequelizeModel = SequelizeModel
-  > extends ColumnOptions {
+  export interface ModelAttributeColumnOptions<M extends Model = Model>
+    extends ColumnOptions {
     dependencies?: SequelizeDependency<M>[];
   }
 

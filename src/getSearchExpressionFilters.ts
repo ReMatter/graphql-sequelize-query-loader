@@ -42,10 +42,12 @@ export function getSearchExpressionFilters<M extends Model>(
                 return [{}, customExpression];
               }
 
-              const literalExpression = computedAttributes[field as keyof M];
+              const literalExpression = computedAttributes[field];
               if (literalExpression) {
                 const searchTerm = escape(`%${searchExpression.searchTerm}%`);
-                return literal(`(${literalExpression.val}) LIKE ${searchTerm}`);
+                return literal(
+                  `(${literalExpression.val as string}) LIKE ${searchTerm}`
+                );
               }
 
               return {

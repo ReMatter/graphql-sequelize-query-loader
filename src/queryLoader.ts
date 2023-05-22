@@ -123,7 +123,7 @@ class QueryLoader {
     sorters?: readonly (Sorter | OrderItem)[];
     customSorters?: { [key: string]: Order };
     computedQueries?: ComputedQueries<unknown, unknown>;
-    customSearchExpressions?: CustomSearchExpressions;
+    customSearchExpressions?: CustomSearchExpressions<M>;
     requiredIncludes?: IncludeOptions[];
   }): QueryLoaderFindOptions<M> {
     const {

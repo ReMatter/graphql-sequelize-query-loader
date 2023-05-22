@@ -51,7 +51,7 @@ describe("getSearchExpressionFilters()", () => {
         {
           title: (searchTerm) =>
             literal(
-              `SELECT EXISTS( SELECT 1 FROM article WHERE article.id = article.id AND title LIKE '%${searchTerm}%'`
+              `SELECT EXISTS( SELECT 1 FROM article WHERE title LIKE '%${searchTerm}%'`
             ),
         }
       )
@@ -63,7 +63,7 @@ describe("getSearchExpressionFilters()", () => {
             [
               {},
               literal(
-                `SELECT EXISTS( SELECT 1 FROM article WHERE article.id = article.id AND title LIKE '%dog%'`
+                `SELECT EXISTS( SELECT 1 FROM article WHERE title LIKE '%dog%'`
               ),
             ],
           ],
