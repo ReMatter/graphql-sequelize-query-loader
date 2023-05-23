@@ -78,7 +78,7 @@ export function buildFilter<M extends Model>(
     const rawValue = filter[key as string] as WhereAttributeHashValue<
       Attributes<M>
     >;
-    if (computedAttributes[key])
+    if (typeof key === "string" && computedAttributes[key])
       return buildLiteralFilter(computedAttributes[key], rawValue);
 
     if ((key === Op.or || key === Op.and) && Array.isArray(rawValue)) {
@@ -93,7 +93,7 @@ export function buildFilter<M extends Model>(
                 const literalMapping = computedAttributes[innerKey];
                 if (literalMapping)
                   return buildLiteralFilter(literalMapping, innerValue);
-                return { [innerKey]: innerValue } as WhereAttributeHash<M>;
+                return { [innerKey]: innerValue as unknown };
               }),
             ]
           ),
@@ -109,18 +109,18 @@ export function mergeFilter<M extends Model>(
   target: WhereOptions<M>,
   source: WhereOptions<M>
 ): WhereOptions<M> {
-  const src = { ...source };
+  const src = { ...source } as { [x: symbol]: unknown[] };
 
   const dest = Object.getOwnPropertySymbols(src).reduce(
     (acc, op) => {
-      if (acc[op] && Array.isArray(src[op])) {
-        acc[op] = acc[op].concat(src[op]);
+      if (Array.isArray(acc[op]) && Array.isArray(src[op])) {
+        acc[op].push(...src[op]);
         delete src[op];
       }
       return acc;
     },
-    { ...target }
+    { ...target } as { [x: symbol]: unknown[] }
   );
 
-  return { ...dest, ...src };
+  return { ...dest, ...src } as WhereOptions<M>;
 }

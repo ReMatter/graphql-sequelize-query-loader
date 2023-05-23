@@ -48,7 +48,7 @@ export type Sorter = {
 };
 
 export type ComputedAttributes<M extends Model> = {
-  [key in keyof Attributes<M>]?: Literal;
+  [key in keyof Attributes<M>]: Literal;
 };
 
 export type IncludeAsCallback = (includeAs: string) => [Literal | Fn, string];

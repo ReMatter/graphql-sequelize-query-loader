@@ -23,7 +23,7 @@ export function getComputedAttributes<M extends Model>(
   includedAs = model?.name
 ): ComputedAttributes<M> {
   if (!model) {
-    return {};
+    return {} as ComputedAttributes<M>;
   }
 
   const attributes = model.getAttributes();
