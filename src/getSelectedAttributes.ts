@@ -23,9 +23,8 @@ import {
   ModelStatic,
   ProjectionAlias,
   Association,
-  Attributes,
 } from "sequelize";
-import { ComputedQueries } from "./queryLoader";
+import { ComputedQueries, Scalars } from "./queryLoader";
 
 // TODO fix this, it fails if the computed query has arguments in place
 // ie numJobs: numJobs(afterDate: $afterDate) works
@@ -36,11 +35,15 @@ const getComputedQueryVariables = (fieldNode: FieldNode) =>
     (a.value as VariableNode).name.value,
   ]) ?? [];
 
-export function getSelectedAttributes<M extends Model>(args: {
+export function getSelectedAttributes<
+  M extends Model,
+  E extends Record<string, Scalars>,
+  V extends Record<string, Scalars[keyof Scalars]>
+>(args: {
   model: ModelStatic<M>;
   selections: ReadonlyArray<SelectionNode> | undefined;
   variables?: GraphQLResolveInfo["variableValues"];
-  computedQueries?: ComputedQueries<Attributes<M>, unknown>;
+  computedQueries?: ComputedQueries<E, V>;
 }): FindAttributeOptions {
   const { model, selections, variables, computedQueries } = args;
   /**
@@ -95,7 +98,7 @@ export function getSelectedAttributes<M extends Model>(args: {
     if (computedQuery && computedAttributeName) {
       // we are pushing [query: literal(), attributeName: string]
       selectedAttributes.add([
-        computedQuery(Object.assign({}, ...vars)),
+        computedQuery(Object.assign({}, ...vars) as V),
         computedAttributeName,
       ]);
     }

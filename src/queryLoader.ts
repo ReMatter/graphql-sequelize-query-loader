@@ -158,14 +158,18 @@ class QueryLoader {
    *
    * @returns the query options to be used in a Model.findAll({ ... }) method call
    */
-  getFindOptions<M extends Model>(args: {
+  getFindOptions<
+    M extends Model,
+    E extends Record<string, Scalars>,
+    V extends Record<string, Scalars[keyof Scalars]>
+  >(args: {
     model: ModelStatic<M>;
     info: GraphQLResolveInfo;
     filter?: WhereOptions<Attributes<M>>;
     searchExpressions?: Maybe<readonly SearchExpression[]>;
     sorters?: readonly (Sorter | OrderItem)[];
     customSorters?: { [key: string]: Order };
-    computedQueries?: ComputedQueries<unknown, unknown>;
+    computedQueries?: ComputedQueries<E, V>;
     customSearchExpressions?: CustomSearchExpressions<M>;
     requiredIncludes?: IncludeOptions[];
   }): QueryLoaderFindOptions<M> {
