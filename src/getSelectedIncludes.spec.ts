@@ -38,7 +38,6 @@ describe("getSelectedIncludes()", () => {
   it("returns sequalize include when query has an included model", () => {
     const selections: readonly FieldNode[] = [
       {
-        arguments: [],
         kind: Kind.FIELD,
         name: {
           kind: Kind.NAME,
@@ -48,7 +47,6 @@ describe("getSelectedIncludes()", () => {
           kind: Kind.SELECTION_SET,
           selections: [
             {
-              arguments: [],
               kind: Kind.FIELD,
               name: {
                 kind: Kind.NAME,
@@ -81,7 +79,6 @@ describe("getSelectedIncludes()", () => {
   it("handles cases where included models next/include other related models", () => {
     const selections: readonly FieldNode[] = [
       {
-        arguments: [],
         kind: Kind.FIELD,
         name: {
           kind: Kind.NAME,
@@ -89,7 +86,6 @@ describe("getSelectedIncludes()", () => {
         },
       },
       {
-        arguments: [],
         kind: Kind.FIELD,
         name: {
           kind: Kind.NAME,
@@ -99,7 +95,6 @@ describe("getSelectedIncludes()", () => {
           kind: Kind.SELECTION_SET,
           selections: [
             {
-              arguments: [],
               kind: Kind.FIELD,
               name: {
                 kind: Kind.NAME,
@@ -107,7 +102,6 @@ describe("getSelectedIncludes()", () => {
               },
             },
             {
-              arguments: [],
               kind: Kind.FIELD,
               name: {
                 kind: Kind.NAME,
@@ -115,7 +109,6 @@ describe("getSelectedIncludes()", () => {
               },
             },
             {
-              arguments: [],
               kind: Kind.FIELD,
               name: {
                 kind: Kind.NAME,
@@ -125,7 +118,6 @@ describe("getSelectedIncludes()", () => {
                 kind: Kind.SELECTION_SET,
                 selections: [
                   {
-                    arguments: [],
                     kind: Kind.FIELD,
                     name: {
                       kind: Kind.NAME,
@@ -136,7 +128,6 @@ describe("getSelectedIncludes()", () => {
               },
             },
             {
-              arguments: [],
               kind: Kind.FIELD,
               name: {
                 kind: Kind.NAME,
@@ -146,7 +137,6 @@ describe("getSelectedIncludes()", () => {
                 kind: Kind.SELECTION_SET,
                 selections: [
                   {
-                    arguments: [],
                     kind: Kind.FIELD,
                     name: {
                       kind: Kind.NAME,
@@ -154,7 +144,6 @@ describe("getSelectedIncludes()", () => {
                     },
                   },
                   {
-                    arguments: [],
                     kind: Kind.FIELD,
                     name: {
                       kind: Kind.NAME,
