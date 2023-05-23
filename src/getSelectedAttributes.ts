@@ -23,6 +23,7 @@ import {
   ModelStatic,
   ProjectionAlias,
   Association,
+  Attributes,
 } from "sequelize";
 import { ComputedQueries } from "./queryLoader";
 
@@ -39,7 +40,7 @@ export function getSelectedAttributes<M extends Model>(args: {
   model: ModelStatic<M>;
   selections: ReadonlyArray<SelectionNode> | undefined;
   variables?: GraphQLResolveInfo["variableValues"];
-  computedQueries?: ComputedQueries<unknown, unknown>;
+  computedQueries?: ComputedQueries<Attributes<M>, unknown>;
 }): FindAttributeOptions {
   const { model, selections, variables, computedQueries } = args;
   /**
@@ -82,21 +83,22 @@ export function getSelectedAttributes<M extends Model>(args: {
   computedAttributes.forEach((attribute) => {
     const computedQueryVars = getComputedQueryVariables(attribute);
     const {
-      // @ts-expect-error TS(2339) FIXME: Property 'value' does not exist on type 'NameNode ... Remove this comment to see the full error message
-      alias: { value: computedAttributeName },
+      alias,
       name: { value: computedAttributeQueryName },
     } = attribute;
-    // @ts-expect-error TS(2532) FIXME: Object is possibly 'undefined'.
-    const computedQuery = computedQueries[computedAttributeQueryName];
+    const computedQuery = computedQueries?.[computedAttributeQueryName];
     const vars = computedQueryVars.map(([nameInMethod, nameInVariables]) => ({
-      // @ts-expect-error TS(2532) FIXME: Object is possibly 'undefined'.
-      [nameInMethod]: variables[nameInVariables],
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+      [nameInMethod]: variables?.[nameInVariables],
     }));
-    // we are pushing [query: literal(), attributeName: string]
-    selectedAttributes.add([
-      computedQuery(Object.assign({}, ...vars)),
-      computedAttributeName,
-    ]);
+    const computedAttributeName = alias?.value;
+    if (computedQuery && computedAttributeName) {
+      // we are pushing [query: literal(), attributeName: string]
+      selectedAttributes.add([
+        computedQuery(Object.assign({}, ...vars)),
+        computedAttributeName,
+      ]);
+    }
   });
 
   // Always include the primary key of the model
