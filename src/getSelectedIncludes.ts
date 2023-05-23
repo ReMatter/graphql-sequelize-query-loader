@@ -1,12 +1,12 @@
 import { FieldNode, GraphQLResolveInfo } from "graphql";
 import { IncludeOptions, Model, ModelStatic } from "sequelize";
+import { getIncludeModel } from "./getIncludeModel";
+import { getFindOptionsForModel } from "./getFindOptionsForModel";
 import {
   CustomFieldFilters,
   DependenciesByFieldNameByModelName,
   ModelAssociationMap,
-} from "./types";
-import { getIncludeModel } from "./getIncludeModel";
-import { getFindOptionsForModel } from "./getFindOptionsForModel";
+} from "./queryLoader";
 
 /**
  * Return an array of all the includes to be carried out

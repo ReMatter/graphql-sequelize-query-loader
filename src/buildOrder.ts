@@ -1,6 +1,6 @@
 import { literal, Model, ModelStatic, Order, OrderItem } from "sequelize";
-import { Sorter } from "./types";
 import { getComputedAttributes } from "./getComputedAttributes";
+import { Sorter } from "./queryLoader";
 
 /**
  * Allow to map the list of attributes to sort by, including these which are virtual/computed fields

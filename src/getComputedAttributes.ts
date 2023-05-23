@@ -1,12 +1,16 @@
 import {
   Attributes,
   DataTypes,
+  IncludeAsCallback,
   Model,
   ModelStatic,
   VirtualDataType,
 } from "sequelize";
-import { ComputedAttributes, IncludeAsCallback } from "./types";
 import { Literal } from "sequelize/types/utils";
+
+type ComputedAttributes<M extends Model> = {
+  [key in keyof Attributes<M>]: Literal;
+};
 
 /**
  * Allow to obtain the list of computed attributes, useful for (automatically) projecting, filtering, and

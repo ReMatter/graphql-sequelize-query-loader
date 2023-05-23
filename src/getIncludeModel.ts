@@ -1,5 +1,5 @@
 import { Model, ModelStatic } from "sequelize";
-import { ModelAssociationMap } from "./types";
+import { ModelAssociationMap } from "./queryLoader";
 
 export function getIncludeModel(
   model: ModelStatic<Model>,

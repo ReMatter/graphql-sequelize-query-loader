@@ -12,9 +12,13 @@ import { Literal } from "sequelize/types/utils";
 import { Escapable, escape } from "sequelize/lib/sql-string";
 
 import { getComputedAttributes } from "./getComputedAttributes";
-import { WhereAttributeHashOnly } from "./types";
 
 import { OperatorMap } from "sequelize/lib/dialects/abstract/query-generator/operators";
+
+type WhereAttributeHashOnly<TAttributes> = Extract<
+  WhereAttributeHash<TAttributes>,
+  WhereOptions<TAttributes>
+>;
 
 /**
  * Parses virtual/computed fields into Literal

@@ -7,9 +7,9 @@ import {
   WhereOptions,
 } from "sequelize";
 
-import { SearchExpression } from "./types";
 import { getComputedAttributes } from "./getComputedAttributes";
 import { escape } from "sequelize/lib/sql-string";
+import { SearchExpression } from "./queryLoader";
 
 export type CustomSearchExpressions<M extends Model> = {
   [name: string]: (searchTerm: string) => WhereOptions<M>;

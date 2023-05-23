@@ -4,10 +4,9 @@ import { Kind, SelectionNode } from "graphql";
 import ArticleModel from "./__mocks__/models/Article";
 
 import { getSelectedAttributes } from "./getSelectedAttributes";
-import { Scalars } from "./types";
-import { ComputedQueries } from "./types";
 import { Sequelize, literal } from "sequelize";
 import AuthorModel from "./__mocks__/models/Author";
+import { ComputedQueries, Scalars } from "./queryLoader";
 
 const selections: ReadonlyArray<SelectionNode> = [
   {

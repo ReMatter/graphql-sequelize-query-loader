@@ -4,17 +4,30 @@ import {
   GraphQLResolveInfo,
   SelectionNode,
 } from "graphql";
-import { Model, ModelStatic } from "sequelize";
 import {
-  BaseFindOptions,
-  CustomFieldFilters,
-  DependenciesByFieldNameByModelName,
-  ModelAssociationMap,
-  ComputedQueries,
-} from "./types";
+  FindAttributeOptions,
+  IncludeOptions,
+  Model,
+  ModelStatic,
+  WhereOptions,
+} from "sequelize";
 import { getWhereOptions } from "./getWhereOptions";
 import { getSelectedAttributes } from "./getSelectedAttributes";
 import { getSelectedIncludes } from "./getSelectedIncludes";
+import {
+  ComputedQueries,
+  CustomFieldFilters,
+  DependenciesByFieldNameByModelName,
+  ModelAssociationMap,
+} from "./queryLoader";
+
+type BaseFindOptions<M extends Model> = {
+  attributes: FindAttributeOptions;
+  where: WhereOptions<M>;
+  include: IncludeOptions[];
+  paranoid?: boolean;
+  required?: boolean;
+};
 
 /**
  * Helper function, called by both the root `getFindOptions` (called by client) and the

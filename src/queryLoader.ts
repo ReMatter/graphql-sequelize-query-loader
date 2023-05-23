@@ -19,24 +19,67 @@ import {
 
 import { buildFilter, mergeFilter } from "./buildFilter";
 import { buildOrder } from "./buildOrder";
-import {
-  SearchExpression,
-  Sorter,
-  Maybe,
-  DependenciesByFieldNameByModelName,
-  ModelAssociationMap,
-  CustomFieldFilters,
-  ComputedQueries,
-} from "./types";
 import { getIncludeModel } from "./getIncludeModel";
 import { getFindOptionsForModel } from "./getFindOptionsForModel";
+import { Literal } from "sequelize/types/utils";
+
+type QueryLoaderFindOptions<M> = Omit<FindOptions<M>, "include"> & {
+  include?: IncludeOptions[];
+};
+
+type SequelizeDependency<M extends Model = Model> = {
+  dependentAssociation: keyof M;
+  paranoid: boolean;
+  required?: boolean;
+};
+
+type Maybe<T> = T | null;
+
+/** All built-in and custom scalars, mapped to their actual values */
+export type Scalars = {
+  ID: string;
+  String: string;
+  Boolean: boolean;
+  Int: number;
+  Float: number;
+  /** Date custom scalar type */
+  Date: Date;
+  JSON: unknown;
+};
 
 interface ModelDict {
   [modelName: string]: ModelStatic<Model>;
 }
 
-type QueryLoaderFindOptions<M> = Omit<FindOptions<M>, "include"> & {
-  include?: IncludeOptions[];
+export interface DependenciesByFieldNameByModelName {
+  [modelName: string]: {
+    [fieldName: string]: SequelizeDependency[];
+  };
+}
+
+export type SearchExpression = {
+  readonly fields: ReadonlyArray<Scalars["String"]>;
+  readonly searchTerm: Scalars["String"];
+};
+
+export type Sorter = {
+  readonly field: Scalars["String"];
+  readonly order: Scalars["String"];
+};
+
+export interface ModelAssociationMap {
+  [modelName: string]: {
+    [associationName: string]: ModelStatic<Model>;
+  };
+}
+export interface CustomFieldFilters {
+  [modelName: string]: {
+    [fieldName: string]: ({ ...args }) => WhereOptions;
+  };
+}
+
+export type ComputedQueries<T, U> = {
+  [key in keyof Partial<T>]: ({ ...args }: U) => Literal;
 };
 
 class QueryLoader {

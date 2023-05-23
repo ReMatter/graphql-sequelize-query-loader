@@ -22,8 +22,9 @@ import {
   Model,
   ModelStatic,
   ProjectionAlias,
+  Association,
 } from "sequelize";
-import { ComputedQueries } from "./types";
+import { ComputedQueries } from "./queryLoader";
 
 // TODO fix this, it fails if the computed query has arguments in place
 // ie numJobs: numJobs(afterDate: $afterDate) works
@@ -59,8 +60,7 @@ export function getSelectedAttributes<M extends Model>(args: {
 
   const associations = Object.keys(model.associations);
 
-  // @ts-expect-error TS(2532) FIXME: Object is possibly 'undefined'.
-  selections.forEach((item) => {
+  selections?.forEach((item) => {
     const selection = item as FieldNode;
     const fieldName = selection.name.value;
     const isModelAttribute = modelAttributes.find((attr) => attr === fieldName);
@@ -72,7 +72,7 @@ export function getSelectedAttributes<M extends Model>(args: {
       // if it is not part of the model and we know how to compute it, let's do that
       computedAttributes.push(selection);
     } else if (associations.includes(fieldName)) {
-      const { sourceKey } = model.associations[fieldName];
+      const { sourceKey } = model.associations[fieldName] as Association;
       if (sourceKey) {
         selectedAttributes.add(sourceKey);
       }
