@@ -1,4 +1,4 @@
-import { FieldNode } from "graphql";
+import { FieldNode, Kind } from "graphql";
 import ArticleModel from "./__mocks__/models/Article";
 import { getWhereOptions } from "./getWhereOptions";
 import { Op } from "sequelize";
@@ -7,32 +7,32 @@ import { expect } from "chai";
 describe("getWhereOptions()", () => {
   it("uses custom filters if provided", () => {
     const selection: FieldNode = {
-      kind: "Field",
+      kind: Kind.FIELD,
       name: {
-        kind: "Name",
+        kind: Kind.NAME,
         value: "articleArchive",
       },
       arguments: [
         {
-          kind: "Argument",
+          kind: Kind.ARGUMENT,
           name: {
-            kind: "Name",
+            kind: Kind.NAME,
             value: "from",
           },
           value: {
-            kind: "StringValue",
+            kind: Kind.STRING,
             value: "2014-01-01",
             block: false,
           },
         },
         {
-          kind: "Argument",
+          kind: Kind.ARGUMENT,
           name: {
-            kind: "Name",
+            kind: Kind.NAME,
             value: "to",
           },
           value: {
-            kind: "StringValue",
+            kind: Kind.STRING,
             value: "2014-12-31",
             block: false,
           },
@@ -61,20 +61,20 @@ describe("getWhereOptions()", () => {
   describe("scope argument", () => {
     it("simple scope", () => {
       const selection: FieldNode = {
-        kind: "Field",
+        kind: Kind.FIELD,
         name: {
-          kind: "Name",
+          kind: Kind.NAME,
           value: "articles",
         },
         arguments: [
           {
-            kind: "Argument",
+            kind: Kind.ARGUMENT,
             name: {
-              kind: "Name",
+              kind: Kind.NAME,
               value: "scope",
             },
             value: {
-              kind: "StringValue",
+              kind: Kind.STRING,
               value: "id|gt|2",
               block: false,
             },
@@ -95,20 +95,20 @@ describe("getWhereOptions()", () => {
 
     it("using && with two conditions", () => {
       const selection: FieldNode = {
-        kind: "Field",
+        kind: Kind.FIELD,
         name: {
-          kind: "Name",
+          kind: Kind.NAME,
           value: "articles",
         },
         arguments: [
           {
-            kind: "Argument",
+            kind: Kind.ARGUMENT,
             name: {
-              kind: "Name",
+              kind: Kind.NAME,
               value: "scope",
             },
             value: {
-              kind: "StringValue",
+              kind: Kind.STRING,
               value: "id|gt|2 && title|like|dog",
               block: false,
             },

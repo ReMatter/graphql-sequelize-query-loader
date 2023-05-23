@@ -1,6 +1,6 @@
 import { expect } from "chai";
 
-import { FieldNode } from "graphql";
+import { FieldNode, Kind } from "graphql";
 import { getSelectedIncludes } from "./getSelectedIncludes";
 import ArticleModel from "./__mocks__/models/Article";
 import CategoryModel from "./__mocks__/models/Category";
@@ -11,16 +11,16 @@ describe("getSelectedIncludes()", () => {
   it("returns an empty array when query has no included models", () => {
     const selections: readonly FieldNode[] = [
       {
-        kind: "Field",
+        kind: Kind.FIELD,
         name: {
-          kind: "Name",
+          kind: Kind.NAME,
           value: "id",
         },
       },
       {
-        kind: "Field",
+        kind: Kind.FIELD,
         name: {
-          kind: "Name",
+          kind: Kind.NAME,
           value: "title",
         },
       },
@@ -39,19 +39,19 @@ describe("getSelectedIncludes()", () => {
     const selections: readonly FieldNode[] = [
       {
         arguments: [],
-        kind: "Field",
+        kind: Kind.FIELD,
         name: {
-          kind: "Name",
+          kind: Kind.NAME,
           value: "owner",
         },
         selectionSet: {
-          kind: "SelectionSet",
+          kind: Kind.SELECTION_SET,
           selections: [
             {
               arguments: [],
-              kind: "Field",
+              kind: Kind.FIELD,
               name: {
-                kind: "Name",
+                kind: Kind.NAME,
                 value: "firstname",
               },
             },
@@ -82,53 +82,53 @@ describe("getSelectedIncludes()", () => {
     const selections: readonly FieldNode[] = [
       {
         arguments: [],
-        kind: "Field",
+        kind: Kind.FIELD,
         name: {
-          kind: "Name",
+          kind: Kind.NAME,
           value: "id",
         },
       },
       {
         arguments: [],
-        kind: "Field",
+        kind: Kind.FIELD,
         name: {
-          kind: "Name",
+          kind: Kind.NAME,
           value: "articles",
         },
         selectionSet: {
-          kind: "SelectionSet",
+          kind: Kind.SELECTION_SET,
           selections: [
             {
               arguments: [],
-              kind: "Field",
+              kind: Kind.FIELD,
               name: {
-                kind: "Name",
+                kind: Kind.NAME,
                 value: "id",
               },
             },
             {
               arguments: [],
-              kind: "Field",
+              kind: Kind.FIELD,
               name: {
-                kind: "Name",
+                kind: Kind.NAME,
                 value: "title",
               },
             },
             {
               arguments: [],
-              kind: "Field",
+              kind: Kind.FIELD,
               name: {
-                kind: "Name",
+                kind: Kind.NAME,
                 value: "owner",
               },
               selectionSet: {
-                kind: "SelectionSet",
+                kind: Kind.SELECTION_SET,
                 selections: [
                   {
                     arguments: [],
-                    kind: "Field",
+                    kind: Kind.FIELD,
                     name: {
-                      kind: "Name",
+                      kind: Kind.NAME,
                       value: "firstname",
                     },
                   },
@@ -137,27 +137,27 @@ describe("getSelectedIncludes()", () => {
             },
             {
               arguments: [],
-              kind: "Field",
+              kind: Kind.FIELD,
               name: {
-                kind: "Name",
+                kind: Kind.NAME,
                 value: "comments",
               },
               selectionSet: {
-                kind: "SelectionSet",
+                kind: Kind.SELECTION_SET,
                 selections: [
                   {
                     arguments: [],
-                    kind: "Field",
+                    kind: Kind.FIELD,
                     name: {
-                      kind: "Name",
+                      kind: Kind.NAME,
                       value: "id",
                     },
                   },
                   {
                     arguments: [],
-                    kind: "Field",
+                    kind: Kind.FIELD,
                     name: {
-                      kind: "Name",
+                      kind: Kind.NAME,
                       value: "body",
                     },
                   },

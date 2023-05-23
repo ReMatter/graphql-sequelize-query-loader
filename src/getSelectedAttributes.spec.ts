@@ -1,6 +1,6 @@
 import { assert } from "chai";
 
-import { SelectionNode } from "graphql";
+import { Kind, SelectionNode } from "graphql";
 import ArticleModel from "./__mocks__/models/Article";
 
 import { getSelectedAttributes } from "./getSelectedAttributes";
@@ -11,16 +11,16 @@ import AuthorModel from "./__mocks__/models/Author";
 
 const selections: ReadonlyArray<SelectionNode> = [
   {
-    kind: "Field",
+    kind: Kind.FIELD,
     name: {
-      kind: "Name",
+      kind: Kind.NAME,
       value: "id",
     },
   },
   {
-    kind: "Field",
+    kind: Kind.FIELD,
     name: {
-      kind: "Name",
+      kind: Kind.NAME,
       value: "title",
     },
   },
@@ -90,28 +90,28 @@ describe("getSelectedAttributes()", () => {
         model: AuthorModel,
         selections: [
           {
-            kind: "Field",
-            alias: { kind: "Name", value: "publishedBetween" },
+            kind: Kind.FIELD,
+            alias: { kind: Kind.NAME, value: "publishedBetween" },
             arguments: [
               {
-                kind: "Argument",
-                name: { kind: "Name", value: "startDate" },
+                kind: Kind.ARGUMENT,
+                name: { kind: Kind.NAME, value: "startDate" },
                 value: {
-                  kind: "Variable",
-                  name: { kind: "Name", value: "startDate" },
+                  kind: Kind.VARIABLE,
+                  name: { kind: Kind.NAME, value: "startDate" },
                 },
               },
               {
-                kind: "Argument",
-                name: { kind: "Name", value: "endDate" },
+                kind: Kind.ARGUMENT,
+                name: { kind: Kind.NAME, value: "endDate" },
                 value: {
-                  kind: "Variable",
-                  name: { kind: "Name", value: "endDate" },
+                  kind: Kind.VARIABLE,
+                  name: { kind: Kind.NAME, value: "endDate" },
                 },
               },
             ],
             name: {
-              kind: "Name",
+              kind: Kind.NAME,
               value: "publishedBetween",
             },
           },

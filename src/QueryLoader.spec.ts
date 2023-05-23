@@ -1,70 +1,67 @@
 import { expect } from "chai";
 
-import { parse, buildSchema, GraphQLField, FieldNode } from "graphql";
+import {
+  parse,
+  buildSchema,
+  GraphQLField,
+  FieldNode,
+  GraphQLObjectType,
+  GraphQLSchema,
+} from "graphql";
 import { Op, WhereAttributeHashValue, literal } from "sequelize";
 import ArticleModel from "./__mocks__/models/Article";
 import CommentModel from "./__mocks__/models/Comment";
 import AuthorModel from "./__mocks__/models/Author";
 import CategoryModel from "./__mocks__/models/Category";
 import QueryLoader from "./queryLoader";
-import { GraphQLSchema } from "graphql";
 import {
   buildResolveInfo,
-  collectFields,
   ExecutionContext,
   buildExecutionContext,
   getFieldDef,
 } from "graphql/execution/execute";
-import { getOperationRootType } from "graphql";
 import { addPath } from "graphql/jsutils/Path";
+import { collectFields } from "graphql/execution/collectFields";
 
 const getGraphQLResolveInfo = (schema: GraphQLSchema, query: string) => {
-  const rootValue = {};
-  const contextValue = {};
-  const rawVariablesValue = {};
+  const document = parse(query);
 
-  const ast = parse(query);
-
-  const executionContext = buildExecutionContext(
+  const executionContext = buildExecutionContext({
     schema,
-    ast,
-    rootValue,
-    contextValue,
-    rawVariablesValue,
-    null,
-    null
-  ) as ExecutionContext;
+    document,
+  }) as ExecutionContext;
 
-  const operationRootType = getOperationRootType(
-    schema,
-    executionContext.operation
-  );
+  const operation = executionContext.operation;
+
+  const rootType = schema.getRootType(operation.operation) as GraphQLObjectType<
+    unknown,
+    unknown
+  >;
+
   const fields = collectFields(
     executionContext,
-    operationRootType,
-    executionContext.operation.selectionSet,
-    Object.create(null) as { [key: string]: FieldNode[] },
-    Object.create(null) as { [key: string]: boolean }
+    executionContext.fragments,
+    executionContext.variableValues,
+    rootType,
+    operation.selectionSet
   );
 
-  const responseName = Object.keys(fields)[0];
-  const fieldNodes = fields[responseName];
+  const responseName = [...fields.keys()][0];
+  const fieldNodes = fields.get(responseName) as FieldNode[];
   const fieldNode = fieldNodes[0];
-  const fieldName = fieldNode.name.value;
 
-  const path = addPath(undefined, responseName, operationRootType.name);
+  const path = addPath(undefined, responseName, rootType.name);
 
-  const fieldDef = getFieldDef(
-    schema,
-    operationRootType,
-    fieldName
-  ) as GraphQLField<any, any>;
+  const fieldDef = getFieldDef(schema, rootType, fieldNode) as GraphQLField<
+    unknown,
+    unknown
+  >;
 
   return buildResolveInfo(
     executionContext,
     fieldDef,
     fieldNodes,
-    operationRootType,
+    rootType,
     path
   );
 };

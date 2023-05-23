@@ -56,7 +56,7 @@
     "typescript": "^5.0.4"
   },
   "dependencies": {
-    "graphql": "^15.8.0",
+    "graphql": "^16.6.0",
     "sequelize": "^6.0.0"
   }
 }
