@@ -26,17 +26,6 @@ const selections: ReadonlyArray<SelectionNode> = [
   },
 ];
 
-// TODO use this with graphql-code-generator to generate GqlAuthor and AuthorPublishedBetweenArgs
-const schema = `
-type Author {
-  id: ID!
-  firstname: String!
-  lastname: String!
-  publishedQuantity: Int!
-  publishedBetween(startDate: Date!, endDate: Date!): Int!
-}
-`;
-
 type GqlAuthor = {
   readonly __typename?: "Author";
   readonly id: Scalars["String"];
@@ -79,7 +68,7 @@ describe("getSelectedAttributes()", () => {
     > = {
       publishedBetween: ({ startDate, endDate }) =>
         Sequelize.literal(
-          `(SELECT COUNT(*) FROM article WHERE article.authorId = author.id AND article.releaseDate BETWEEN '${startDate}' AND '${endDate}')`
+          `(SELECT COUNT(*) FROM article WHERE article.authorId = author.id AND article.releaseDate BETWEEN '${startDate.toLocaleDateString()}' AND '${endDate.toLocaleDateString()}')`
         ),
     };
 
@@ -124,7 +113,7 @@ describe("getSelectedAttributes()", () => {
         "id",
         [
           literal(
-            `(SELECT COUNT(*) FROM article WHERE article.authorId = author.id AND article.releaseDate BETWEEN '${startDate}' AND '${endDate}')`
+            `(SELECT COUNT(*) FROM article WHERE article.authorId = author.id AND article.releaseDate BETWEEN '${startDate.toLocaleDateString()}' AND '${endDate.toLocaleDateString()}')`
           ),
           "publishedBetween",
         ],

@@ -226,7 +226,7 @@ describe("queryLoader", () => {
         info,
         model: ArticleModel,
       });
-      const expectedWhereConstraints: WhereAttributeHashValue<any> = {
+      const expectedWhereConstraints: WhereAttributeHashValue<unknown> = {
         id: {
           [Op.gt]: "2",
         },

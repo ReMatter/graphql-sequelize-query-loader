@@ -28,8 +28,8 @@ export type Scalars = {
   Int: number;
   Float: number;
   /** Date custom scalar type */
-  Date: any;
-  JSON: any;
+  Date: Date;
+  JSON: unknown;
 };
 
 export type WhereAttributeHashOnly<TAttributes> = Extract<

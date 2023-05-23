@@ -235,7 +235,7 @@ class QueryLoader {
               (o) =>
                 Array.isArray(o) && o.length === 2 && typeof o[0] === "string"
             )
-            .map((field: OrderItem) => (field as [string, any])[0])
+            .map((field: OrderItem) => (field as [string, unknown])[0])
             .filter(
               (fieldName) =>
                 !(
