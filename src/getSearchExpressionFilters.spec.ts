@@ -148,4 +148,26 @@ describe("getSearchExpressionFilters()", () => {
     //   },
     // ],
   });
+
+  // TODO integration test for auto including navigation
+  it("should allow aliasing $navigation.syntax$", () => {
+    expect(
+      getSearchExpressionFilters(
+        [{ fields: ["ownerName"], searchTerm: "pete" }],
+        ArticleModel,
+        { ownerName: "$owner.name$" }
+      )
+    ).to.eql({
+      [Op.and]: [
+        {
+          [Op.or]: [
+            {},
+            {
+              "$owner.name$": "pete",
+            },
+          ],
+        },
+      ],
+    });
+  });
 });
