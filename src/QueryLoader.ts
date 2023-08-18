@@ -9,6 +9,7 @@ import {
   Order,
   OrderItem,
   ProjectionAlias,
+  WhereAttributeHash,
   WhereOptions,
 } from "sequelize";
 
@@ -165,7 +166,7 @@ class QueryLoader {
   >(args: {
     model: ModelStatic<M>;
     info: GraphQLResolveInfo;
-    filter?: WhereOptions<Attributes<M>>;
+    filter?: WhereAttributeHash<Attributes<M>>;
     searchExpressions?: Maybe<readonly SearchExpression[]>;
     sorters?: readonly (Sorter | OrderItem)[];
     customSorters?: { [key: string]: Order };
