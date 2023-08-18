@@ -102,7 +102,7 @@ describe("getSearchExpressionFilters", () => {
     });
   });
 
-  it.skip("should use the custom expresion if defined overriding field", () => {
+  it("should use the custom expresion if defined overriding field", () => {
     expect(
       getSearchExpressionFilters(
         [{ fields: ["title"], searchTerm: "dog" }],
@@ -123,30 +123,19 @@ describe("getSearchExpressionFilters", () => {
         {
           [Op.or]: [
             {},
-            { title: { [Op.like]: "%dog%" } },
-            { description: { [Op.like]: "%dog%" } },
+            [
+              {},
+              {
+                [Op.or]: [
+                  { title: { [Op.like]: "%dog%" } },
+                  { description: { [Op.like]: "%dog%" } },
+                ],
+              },
+            ],
           ],
         },
       ],
     });
-
-    // this is the current output
-    // [Op.and]: [
-    //   {
-    //     [Op.or]: [
-    //       {},
-    //       [
-    //         {},
-    //         {
-    //           [Op.or]: [
-    //             { title: { [Op.like]: "%dog%" } },
-    //             { description: { [Op.like]: "%dog%" } },
-    //           ],
-    //         },
-    //       ],
-    //     ],
-    //   },
-    // ],
   });
 
   // TODO integration test for auto including navigation

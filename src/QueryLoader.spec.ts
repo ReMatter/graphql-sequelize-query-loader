@@ -1,72 +1,15 @@
 import { expect } from "chai";
 
-import {
-  parse,
-  buildSchema,
-  GraphQLField,
-  FieldNode,
-  GraphQLObjectType,
-  GraphQLSchema,
-} from "graphql";
+import { buildSchema } from "graphql";
 import { Op, WhereAttributeHashValue, literal } from "sequelize";
 import ArticleModel from "./__mocks__/models/Article";
 import CommentModel from "./__mocks__/models/Comment";
 import AuthorModel from "./__mocks__/models/Author";
 import CategoryModel from "./__mocks__/models/Category";
 import QueryLoader from "./QueryLoader";
-import {
-  buildResolveInfo,
-  ExecutionContext,
-  buildExecutionContext,
-  getFieldDef,
-} from "graphql/execution/execute";
-import { addPath } from "graphql/jsutils/Path";
-import { collectFields } from "graphql/execution/collectFields";
+import { getGraphQLResolveInfo } from "../test/utils/getGraphQLResolveInfo";
 
-const getGraphQLResolveInfo = (schema: GraphQLSchema, query: string) => {
-  const document = parse(query);
-
-  const executionContext = buildExecutionContext({
-    schema,
-    document,
-  }) as ExecutionContext;
-
-  const operation = executionContext.operation;
-
-  const rootType = schema.getRootType(operation.operation) as GraphQLObjectType<
-    unknown,
-    unknown
-  >;
-
-  const fields = collectFields(
-    executionContext,
-    executionContext.fragments,
-    executionContext.variableValues,
-    rootType,
-    operation.selectionSet
-  );
-
-  const responseName = [...fields.keys()][0];
-  const fieldNodes = fields.get(responseName) as FieldNode[];
-  const fieldNode = fieldNodes[0];
-
-  const path = addPath(undefined, responseName, rootType.name);
-
-  const fieldDef = getFieldDef(schema, rootType, fieldNode) as GraphQLField<
-    unknown,
-    unknown
-  >;
-
-  return buildResolveInfo(
-    executionContext,
-    fieldDef,
-    fieldNodes,
-    rootType,
-    path
-  );
-};
-
-describe("queryLoader", () => {
+describe("QueryLoader", () => {
   const includeModels = {
     ArticleModel,
     CommentModel,
@@ -101,7 +44,7 @@ describe("queryLoader", () => {
     }
   `);
 
-  describe("queryLoader.getFindOptions()", () => {
+  describe("getFindOptions", () => {
     it("returns attributes property for the queried fields", () => {
       const query = `
         query {

@@ -7,7 +7,7 @@
   "scripts": {
     "test-unit": "npm exec ts-mocha -- -p tsconfig.json src/**/*.spec.ts",
     "test-integration": "npm exec ts-mocha -- -p test/tsconfig.json test/integration/**/*.test.ts",
-    "test": "yarn run test-unit && yarn run test-integration",
+    "test": "npm run test-unit && npm run test-integration",
     "build": "tsc",
     "format": "prettier --write \"src/**/*.ts\"",
     "lint": "eslint ./src",
