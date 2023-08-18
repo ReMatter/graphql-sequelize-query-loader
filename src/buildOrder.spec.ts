@@ -4,7 +4,7 @@ import AuthorModel from "./__mocks__/models/Author";
 import { buildOrder, hasComputedAttributes } from "./buildOrder";
 import { literal } from "sequelize";
 
-describe("buildOrder()", () => {
+describe("buildOrder", () => {
   it("returns an empty array when no sorters are provided", () => {
     const order = buildOrder(ArticleModel, []);
     expect(order).to.eql([]);

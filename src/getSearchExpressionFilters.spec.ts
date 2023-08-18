@@ -3,7 +3,7 @@ import ArticleModel from "./__mocks__/models/Article";
 import { expect } from "chai";
 import { Op, literal } from "sequelize";
 
-describe("getSearchExpressionFilters()", () => {
+describe("getSearchExpressionFilters", () => {
   it("should handle empty search term", () => {
     expect(
       getSearchExpressionFilters(

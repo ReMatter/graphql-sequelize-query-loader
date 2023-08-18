@@ -4,7 +4,7 @@ import AuthorModel from "./__mocks__/models/Author";
 import { buildFilter } from "./buildFilter";
 import { Op, literal } from "sequelize";
 
-describe("buildFilter()", () => {
+describe("buildFilter", () => {
   it("returns an empty array when no filters are provided", () => {
     const filter = buildFilter(ArticleModel, undefined);
     expect(filter).to.eql([]);

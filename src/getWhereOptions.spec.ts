@@ -4,7 +4,7 @@ import { getWhereOptions } from "./getWhereOptions";
 import { Op } from "sequelize";
 import { expect } from "chai";
 
-describe("getWhereOptions()", () => {
+describe("getWhereOptions", () => {
   it("uses custom filters if provided", () => {
     const selection: FieldNode = {
       kind: Kind.FIELD,

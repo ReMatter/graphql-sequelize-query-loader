@@ -39,7 +39,7 @@ type AuthorPublishedBetweenArgs = {
   endDate: Scalars["Date"];
 };
 
-describe("getSelectedAttributes()", () => {
+describe("getSelectedAttributes", () => {
   it("returns the selected attributes", () => {
     const selectedAttributes = getSelectedAttributes({
       model: ArticleModel,

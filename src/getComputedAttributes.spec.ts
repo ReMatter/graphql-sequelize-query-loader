@@ -45,7 +45,7 @@ const resolvers = {
   },
 };
 
-describe("getComputedAttributes()", () => {
+describe("getComputedAttributes", () => {
   it("return an object with the computed attributes present", () => {
     const computedAttributes = getComputedAttributes(AuthorModel);
     expect(computedAttributes).to.eql({

@@ -18,7 +18,8 @@ import {
   CustomSearchExpressions,
 } from "./getSearchExpressionFilters";
 
-import { buildFilter, mergeFilter } from "./buildFilter";
+import { buildFilter } from "./buildFilter";
+import { mergeFilter } from "./mergeFilter";
 import { buildOrder } from "./buildOrder";
 import { getIncludeModel } from "./getIncludeModel";
 import { getFindOptionsForModel } from "./getFindOptionsForModel";

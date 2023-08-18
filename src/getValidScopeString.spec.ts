@@ -2,7 +2,7 @@ import { assert, expect } from "chai";
 
 import { getValidScopeString } from "./getValidScopeString";
 
-describe("getValidScopeString()", () => {
+describe("getValidScopeString", () => {
   it("throws error when incorrect parts are supplied", () => {
     let scopeString = "id|gt| ";
     try {
