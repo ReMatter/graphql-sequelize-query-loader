@@ -20,12 +20,12 @@
   ],
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/jsamchineme/graphql-sequelize-query-loader"
+    "url": "git+https://github.com/agiletiger/graphql-sequelize-query-loader"
   },
   "bugs": {
-    "url": "https://github.com/jsamchineme/graphql-sequelize-query-loader"
+    "url": "https://github.com/agiletiger/graphql-sequelize-query-loader"
   },
-  "homepage": "https://github.com/jsamchineme/graphql-sequelize-query-loader",
+  "homepage": "https://github.com/agiletiger/graphql-sequelize-query-loader",
   "license": "MIT",
   "keywords": [
     "sequelize",
@@ -34,7 +34,7 @@
     "graphql utils",
     "query-loader"
   ],
-  "author": "jsamchineme",
+  "author": "agiletiger",
   "devDependencies": {
     "@graphql-tools/schema": "^9.0.19",
     "@types/bluebird": "^3.5.27",
