@@ -1,5 +1,5 @@
 import { getSearchExpressionFilters } from "./getSearchExpressionFilters";
-import ArticleModel from "../__mocks__/models/Article";
+import ArticleModel from "../../test/models/Article";
 import { expect } from "chai";
 import { describe, it } from "node:test";
 

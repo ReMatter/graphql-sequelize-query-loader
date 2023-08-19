@@ -1,9 +1,9 @@
 import { expect } from "chai";
 import { describe, it } from "node:test";
 
-import ArticleModel from "../../src/__mocks__/models/Article";
-import AuthorModel from "../../src/__mocks__/models/Author";
-import CommentModel from "../../src/__mocks__/models/Comment";
+import ArticleModel from "../models/Article";
+import AuthorModel from "../models/Author";
+import CommentModel from "../models/Comment";
 import QueryLoader from "../../src/queryLoader";
 import { buildSchema } from "graphql";
 import { getGraphQLResolveInfo } from "../utils/getGraphQLResolveInfo";

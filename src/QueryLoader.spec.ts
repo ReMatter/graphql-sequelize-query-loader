@@ -3,10 +3,10 @@ import { describe, it } from "node:test";
 
 import { buildSchema } from "graphql";
 import { Op, WhereAttributeHashValue, literal } from "sequelize";
-import ArticleModel from "./__mocks__/models/Article";
-import CommentModel from "./__mocks__/models/Comment";
-import AuthorModel from "./__mocks__/models/Author";
-import CategoryModel from "./__mocks__/models/Category";
+import ArticleModel from "../test/models/Article";
+import CommentModel from "../test/models/Comment";
+import AuthorModel from "../test/models/Author";
+import CategoryModel from "../test/models/Category";
 import QueryLoader from "./queryLoader";
 import { getGraphQLResolveInfo } from "../test/utils/getGraphQLResolveInfo";
 

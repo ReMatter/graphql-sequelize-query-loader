@@ -8,7 +8,7 @@
     "skipLibCheck": true,
     "allowJs": true
   },
-  "include": ["src", ".eslintrc.cjs"],
+  "include": ["src", ".eslintrc.cjs", "sequelize-lib.d.ts", "sequelize.d.ts"],
   "exclude": ["node_modules"],
   "ts-node": {
     "files": true

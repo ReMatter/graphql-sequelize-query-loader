@@ -2,9 +2,9 @@ import { expect } from "chai";
 import { describe, it } from "node:test";
 
 import { getComputedAttributes } from "./getComputedAttributes";
-import AuthorModel from "../__mocks__/models/Author";
+import AuthorModel from "../../test/models/Author";
 import { literal } from "sequelize";
-import ArticleModel from "../__mocks__/models/Article";
+import ArticleModel from "../../test/models/Article";
 import { makeExecutableSchema } from "@graphql-tools/schema";
 import { graphql } from "graphql";
 

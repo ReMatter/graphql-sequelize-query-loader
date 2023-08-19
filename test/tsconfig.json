@@ -3,5 +3,5 @@
   "compilerOptions": {
     "experimentalDecorators": true
   },
-  "include": ["./"]
+  "include": ["./", "../src/sequelize-lib.d.ts", "../src/sequelize.d.ts"]
 }
