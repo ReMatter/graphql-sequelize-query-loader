@@ -2,12 +2,12 @@ import { assert } from "chai";
 import { describe, it } from "node:test";
 
 import { Kind, SelectionNode } from "graphql";
-import ArticleModel from "./__mocks__/models/Article";
+import ArticleModel from "../__mocks__/models/Article";
 
 import { getSelectedAttributes } from "./getSelectedAttributes";
 import { Sequelize, literal } from "sequelize";
-import AuthorModel from "./__mocks__/models/Author";
-import { ComputedQueries, Scalars } from "./queryLoader";
+import AuthorModel from "../__mocks__/models/Author";
+import { ComputedQueries, Scalars } from "../queryLoader";
 
 const selections: ReadonlyArray<SelectionNode> = [
   {

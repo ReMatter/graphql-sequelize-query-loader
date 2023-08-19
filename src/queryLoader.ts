@@ -16,13 +16,13 @@ import {
 import {
   getSearchExpressionFilters,
   CustomSearchExpressions,
-} from "./getSearchExpressionFilters";
+} from "./helpers/getSearchExpressionFilters";
 
-import { buildFilter } from "./buildFilter";
-import { mergeFilter } from "./mergeFilter";
-import { buildOrder } from "./buildOrder";
-import { getIncludeModel } from "./getIncludeModel";
-import { getFindOptionsForModel } from "./getFindOptionsForModel";
+import { buildFilter } from "./helpers/buildFilter";
+import { mergeFilter } from "./helpers/mergeFilter";
+import { buildOrder } from "./helpers/buildOrder";
+import { getIncludeModel } from "./helpers/getIncludeModel";
+import { getFindOptionsForModel } from "./helpers/getFindOptionsForModel";
 import { Literal } from "sequelize/types/utils";
 
 type QueryLoaderFindOptions<M> = Omit<FindOptions<M>, "include"> & {

@@ -1,5 +1,5 @@
 import { FieldNode, Kind } from "graphql";
-import ArticleModel from "./__mocks__/models/Article";
+import ArticleModel from "../__mocks__/models/Article";
 import { getWhereOptions } from "./getWhereOptions";
 import { Op } from "sequelize";
 import { expect } from "chai";

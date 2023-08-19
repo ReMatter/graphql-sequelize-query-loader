@@ -1,8 +1,8 @@
 import { expect } from "chai";
 import { describe, it } from "node:test";
 
-import ArticleModel from "./__mocks__/models/Article";
-import AuthorModel from "./__mocks__/models/Author";
+import ArticleModel from "../__mocks__/models/Article";
+import AuthorModel from "../__mocks__/models/Author";
 import { buildOrder, hasComputedAttributes } from "./buildOrder";
 import { literal } from "sequelize";
 

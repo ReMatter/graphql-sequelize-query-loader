@@ -3,10 +3,10 @@ import { describe, it } from "node:test";
 
 import { FieldNode, Kind } from "graphql";
 import { getSelectedIncludes } from "./getSelectedIncludes";
-import ArticleModel from "./__mocks__/models/Article";
-import CategoryModel from "./__mocks__/models/Category";
-import CommentModel from "./__mocks__/models/Comment";
-import UserModel from "./__mocks__/models/Author";
+import ArticleModel from "../__mocks__/models/Article";
+import CategoryModel from "../__mocks__/models/Category";
+import CommentModel from "../__mocks__/models/Comment";
+import UserModel from "../__mocks__/models/Author";
 
 describe("getSelectedIncludes", () => {
   it("returns an empty array when query has no included models", () => {
