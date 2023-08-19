@@ -7,7 +7,7 @@ import ArticleModel from "./__mocks__/models/Article";
 import CommentModel from "./__mocks__/models/Comment";
 import AuthorModel from "./__mocks__/models/Author";
 import CategoryModel from "./__mocks__/models/Category";
-import QueryLoader from "./QueryLoader";
+import QueryLoader from "./queryLoader";
 import { getGraphQLResolveInfo } from "../test/utils/getGraphQLResolveInfo";
 
 describe("QueryLoader", () => {

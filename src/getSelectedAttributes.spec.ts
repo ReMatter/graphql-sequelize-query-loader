@@ -7,7 +7,7 @@ import ArticleModel from "./__mocks__/models/Article";
 import { getSelectedAttributes } from "./getSelectedAttributes";
 import { Sequelize, literal } from "sequelize";
 import AuthorModel from "./__mocks__/models/Author";
-import { ComputedQueries, Scalars } from "./QueryLoader";
+import { ComputedQueries, Scalars } from "./queryLoader";
 
 const selections: ReadonlyArray<SelectionNode> = [
   {

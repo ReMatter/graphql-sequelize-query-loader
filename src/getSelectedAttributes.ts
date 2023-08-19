@@ -24,7 +24,7 @@ import {
   ProjectionAlias,
   Association,
 } from "sequelize";
-import { ComputedQueries, Scalars } from "./QueryLoader";
+import { ComputedQueries, Scalars } from "./queryLoader";
 
 // TODO fix this, it fails if the computed query has arguments in place
 // ie numJobs: numJobs(afterDate: $afterDate) works

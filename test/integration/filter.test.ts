@@ -4,7 +4,7 @@ import { describe, it } from "node:test";
 import ArticleModel from "../../src/__mocks__/models/Article";
 import AuthorModel from "../../src/__mocks__/models/Author";
 import CommentModel from "../../src/__mocks__/models/Comment";
-import QueryLoader from "../../src/QueryLoader";
+import QueryLoader from "../../src/queryLoader";
 import { buildSchema } from "graphql";
 import { getGraphQLResolveInfo } from "../utils/getGraphQLResolveInfo";
 import { Op } from "sequelize";

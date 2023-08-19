@@ -19,7 +19,7 @@ import {
   CustomFieldFilters,
   DependenciesByFieldNameByModelName,
   ModelAssociationMap,
-} from "./QueryLoader";
+} from "./queryLoader";
 
 type BaseFindOptions<M extends Model> = {
   attributes: FindAttributeOptions;
