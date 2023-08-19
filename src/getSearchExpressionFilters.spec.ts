@@ -1,6 +1,8 @@
 import { getSearchExpressionFilters } from "./getSearchExpressionFilters";
 import ArticleModel from "./__mocks__/models/Article";
 import { expect } from "chai";
+import { describe, it } from "node:test";
+
 import { Op, literal } from "sequelize";
 
 describe("getSearchExpressionFilters", () => {

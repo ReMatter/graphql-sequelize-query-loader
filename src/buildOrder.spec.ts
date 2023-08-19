@@ -1,4 +1,6 @@
 import { expect } from "chai";
+import { describe, it } from "node:test";
+
 import ArticleModel from "./__mocks__/models/Article";
 import AuthorModel from "./__mocks__/models/Author";
 import { buildOrder, hasComputedAttributes } from "./buildOrder";
@@ -32,7 +34,7 @@ describe("buildOrder", () => {
   });
 });
 
-describe("hasComputedAttributes()", () => {
+describe("hasComputedAttributes", () => {
   it("returns false when empty order", () => {
     const hasComputed = hasComputedAttributes([]);
     expect(hasComputed).to.be.false;

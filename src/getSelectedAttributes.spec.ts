@@ -1,4 +1,5 @@
 import { assert } from "chai";
+import { describe, it } from "node:test";
 
 import { Kind, SelectionNode } from "graphql";
 import ArticleModel from "./__mocks__/models/Article";

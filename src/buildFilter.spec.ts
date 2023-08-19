@@ -1,4 +1,6 @@
 import { expect } from "chai";
+import { describe, it } from "node:test";
+
 import ArticleModel from "./__mocks__/models/Article";
 import AuthorModel from "./__mocks__/models/Author";
 import { buildFilter } from "./buildFilter";

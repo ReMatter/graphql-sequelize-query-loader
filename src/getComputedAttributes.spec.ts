@@ -1,4 +1,6 @@
 import { expect } from "chai";
+import { describe, it } from "node:test";
+
 import { getComputedAttributes } from "./getComputedAttributes";
 import AuthorModel from "./__mocks__/models/Author";
 import { literal } from "sequelize";

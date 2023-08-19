@@ -3,6 +3,7 @@ import ArticleModel from "./__mocks__/models/Article";
 import { getWhereOptions } from "./getWhereOptions";
 import { Op } from "sequelize";
 import { expect } from "chai";
+import { describe, it } from "node:test";
 
 describe("getWhereOptions", () => {
   it("uses custom filters if provided", () => {

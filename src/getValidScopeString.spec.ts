@@ -1,4 +1,5 @@
 import { assert, expect } from "chai";
+import { describe, it } from "node:test";
 
 import { getValidScopeString } from "./getValidScopeString";
 

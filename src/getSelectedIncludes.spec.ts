@@ -1,4 +1,5 @@
 import { expect } from "chai";
+import { describe, it } from "node:test";
 
 import { FieldNode, Kind } from "graphql";
 import { getSelectedIncludes } from "./getSelectedIncludes";
