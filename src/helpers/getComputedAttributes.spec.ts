@@ -52,7 +52,7 @@ describe("getComputedAttributes", () => {
     const computedAttributes = getComputedAttributes(AuthorModel);
     expect(computedAttributes).to.eql({
       publishedQuantity: literal(
-        `(SELECT COUNT(*) FROM article WHERE article.authorId = Author.id)`
+        `(SELECT COUNT(*) FROM article WHERE article.authorId = Author.id)`,
       ),
     });
   });

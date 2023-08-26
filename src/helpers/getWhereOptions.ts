@@ -30,10 +30,10 @@ export function getWhereOptions<M extends Model>(
   model: ModelStatic<M>,
   selection: FieldNode,
   variables: GraphQLResolveInfo["variableValues"],
-  customFieldFilters: CustomFieldFilters
+  customFieldFilters: CustomFieldFilters,
 ): WhereOptions<M> {
   const scopeArgument = selection.arguments?.find(
-    (arg) => arg.name.value === "scope"
+    (arg) => arg.name.value === "scope",
   );
 
   /**
@@ -58,7 +58,7 @@ export function getWhereOptions<M extends Model>(
           const [associationName, fieldName] = field.split(".");
           if (!model.associations[associationName]) {
             throw new Error(
-              `Cannot navigate to non existent association ${associationName}`
+              `Cannot navigate to non existent association ${associationName}`,
             );
           }
           field = `$${selection.name.value}->${model.associations[associationName].target.tableName}.${fieldName}$`;
@@ -86,7 +86,7 @@ export function getWhereOptions<M extends Model>(
           (arg.value as MaterializedValueNode).value ??
           variables[(arg.value as VariableNode).name.value],
       }),
-      {}
+      {},
     ) ?? {};
 
   return {

@@ -48,7 +48,7 @@ export function getSelectedIncludes<M extends Model>(args: {
   const includesFromDependantSelectedFields: IncludeOptions[] = selections
     .filter(
       (selection) =>
-        dependenciesByFieldNameByModelName[model.name]?.[selection.name.value]
+        dependenciesByFieldNameByModelName[model.name]?.[selection.name.value],
     )
     .flatMap((selection) => {
       const fieldName = selection.name.value;
@@ -58,11 +58,11 @@ export function getSelectedIncludes<M extends Model>(args: {
           model: getIncludeModel(
             model,
             dependency.dependentAssociation as string,
-            modelsByAssociationByModelName
+            modelsByAssociationByModelName,
           ),
           as: dependency.dependentAssociation as string,
           paranoid: dependency.paranoid,
-        })
+        }),
       );
     });
 
@@ -79,11 +79,11 @@ export function getSelectedIncludes<M extends Model>(args: {
       const includedModel = getIncludeModel(
         model,
         fieldName,
-        modelsByAssociationByModelName
+        modelsByAssociationByModelName,
       );
       if (!includedModel) {
         console.warn(
-          `Graphql trying to include undefined model "${fieldName}" on base model "${model.tableName}"`
+          `Graphql trying to include undefined model "${fieldName}" on base model "${model.tableName}"`,
         );
       }
       return !!includedModel;
@@ -93,7 +93,7 @@ export function getSelectedIncludes<M extends Model>(args: {
       const includedModel = getIncludeModel(
         model,
         fieldName,
-        modelsByAssociationByModelName
+        modelsByAssociationByModelName,
       );
 
       const { attributes, include, where, paranoid, required } =

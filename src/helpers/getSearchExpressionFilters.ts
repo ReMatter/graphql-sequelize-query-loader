@@ -24,12 +24,12 @@ export type CustomSearchExpressions<M extends Model> = {
 export function getSearchExpressionFilters<M extends Model>(
   searchExpressions: readonly SearchExpression[],
   model: ModelStatic<M>,
-  customExpressions?: CustomSearchExpressions<M>
+  customExpressions?: CustomSearchExpressions<M>,
 ): WhereOptions<Attributes<M>> {
   const computedAttributes = getComputedAttributes(model);
   // filter out search terms of `''`
   return searchExpressions.filter(
-    (searchExpression) => searchExpression.searchTerm
+    (searchExpression) => searchExpression.searchTerm,
   ).length
     ? {
         [Op.and]: searchExpressions.map((searchExpression) => ({
@@ -50,7 +50,7 @@ export function getSearchExpressionFilters<M extends Model>(
               if (literalExpression) {
                 const searchTerm = escape(`%${searchExpression.searchTerm}%`);
                 return literal(
-                  `(${literalExpression.val as string}) LIKE ${searchTerm}`
+                  `(${literalExpression.val as string}) LIKE ${searchTerm}`,
                 );
               }
 

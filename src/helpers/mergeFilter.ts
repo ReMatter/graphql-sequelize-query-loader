@@ -2,7 +2,7 @@ import { Model, WhereOptions } from "sequelize";
 
 export function mergeFilter<M extends Model>(
   target: WhereOptions<M>,
-  source: WhereOptions<M>
+  source: WhereOptions<M>,
 ): WhereOptions<M> {
   const src = { ...source } as { [x: symbol]: unknown[] };
 
@@ -14,7 +14,7 @@ export function mergeFilter<M extends Model>(
       }
       return acc;
     },
-    { ...target } as { [x: symbol]: unknown[] }
+    { ...target } as { [x: symbol]: unknown[] },
   );
 
   return { ...dest, ...src } as WhereOptions<M>;

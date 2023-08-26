@@ -10,8 +10,8 @@ describe("getSearchExpressionFilters", () => {
     expect(
       getSearchExpressionFilters(
         [{ fields: ["title"], searchTerm: "" }],
-        ArticleModel
-      )
+        ArticleModel,
+      ),
     ).to.eql({});
   });
 
@@ -19,8 +19,8 @@ describe("getSearchExpressionFilters", () => {
     expect(
       getSearchExpressionFilters(
         [{ fields: ["title"], searchTerm: "dog" }],
-        ArticleModel
-      )
+        ArticleModel,
+      ),
     ).to.eql({
       [Op.and]: [{ [Op.or]: [{}, { title: { [Op.like]: "%dog%" } }] }],
     });
@@ -30,8 +30,8 @@ describe("getSearchExpressionFilters", () => {
     expect(
       getSearchExpressionFilters(
         [{ fields: ["title", "description"], searchTerm: "dog" }],
-        ArticleModel
-      )
+        ArticleModel,
+      ),
     ).to.eql({
       [Op.and]: [
         {
@@ -53,10 +53,10 @@ describe("getSearchExpressionFilters", () => {
         {
           title: (searchTerm) =>
             literal(
-              `SELECT EXISTS( SELECT 1 FROM article WHERE title LIKE '%${searchTerm}%'`
+              `SELECT EXISTS( SELECT 1 FROM article WHERE title LIKE '%${searchTerm}%'`,
             ),
-        }
-      )
+        },
+      ),
     ).to.eql({
       [Op.and]: [
         {
@@ -65,7 +65,7 @@ describe("getSearchExpressionFilters", () => {
             [
               {},
               literal(
-                `SELECT EXISTS( SELECT 1 FROM article WHERE title LIKE '%dog%'`
+                `SELECT EXISTS( SELECT 1 FROM article WHERE title LIKE '%dog%'`,
               ),
             ],
           ],
@@ -82,10 +82,10 @@ describe("getSearchExpressionFilters", () => {
         {
           title: (searchTerm) =>
             literal(
-              `SELECT EXISTS( SELECT 1 FROM article WHERE article.id = article.id AND title LIKE '%${searchTerm}%'`
+              `SELECT EXISTS( SELECT 1 FROM article WHERE article.id = article.id AND title LIKE '%${searchTerm}%'`,
             ),
-        }
-      )
+        },
+      ),
     ).to.eql({
       [Op.and]: [
         {
@@ -94,7 +94,7 @@ describe("getSearchExpressionFilters", () => {
             [
               {},
               literal(
-                `SELECT EXISTS( SELECT 1 FROM article WHERE article.id = article.id AND title LIKE '%dog%'`
+                `SELECT EXISTS( SELECT 1 FROM article WHERE article.id = article.id AND title LIKE '%dog%'`,
               ),
             ],
             { description: { [Op.like]: "%dog%" } },
@@ -118,8 +118,8 @@ describe("getSearchExpressionFilters", () => {
               { description: { [Op.like]: `%${searchTerm}%` } },
             ],
           }),
-        }
-      )
+        },
+      ),
     ).to.eql({
       [Op.and]: [
         {
@@ -146,8 +146,8 @@ describe("getSearchExpressionFilters", () => {
       getSearchExpressionFilters(
         [{ fields: ["ownerName"], searchTerm: "pete" }],
         ArticleModel,
-        { ownerName: "$owner.name$" }
-      )
+        { ownerName: "$owner.name$" },
+      ),
     ).to.eql({
       [Op.and]: [
         {

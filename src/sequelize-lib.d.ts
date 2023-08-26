@@ -9,7 +9,7 @@ declare module "sequelize/lib/sql-string" {
     val: Escapable | Escapable[],
     timeZone?: string,
     dialect?: string,
-    format?: boolean
+    format?: boolean,
   ): string;
 }
 

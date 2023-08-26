@@ -1,6 +1,9 @@
-// eslint-disable-next-line unused-imports/no-unused-imports
-import * as Sequelize from "sequelize";
-import { VirtualDataType } from "sequelize";
+import {
+  AbstractDataTypeConstructor,
+  AbstractDataType,
+  VirtualDataType,
+} from "sequelize";
+import { Literal, Fn } from "sequelize/types/utils";
 
 declare module "sequelize" {
   export interface ModelAttributeColumnOptions<M extends Model = Model>
@@ -16,16 +19,16 @@ declare module "sequelize" {
     extends AbstractDataTypeConstructor {
     new <T extends AbstractDataTypeConstructor | AbstractDataType>(
       ReturnType: T,
-      fields?: string[] | IncludeAsCallback
+      fields?: string[] | IncludeAsCallback,
     ): VirtualDataType<T>;
     <T extends AbstractDataTypeConstructor | AbstractDataType>(
       ReturnType: T,
-      fields?: string[] | IncludeAsCallback
+      fields?: string[] | IncludeAsCallback,
     ): VirtualDataType<T>;
   }
   export abstract class Association<
     S extends Model = Model,
-    T extends Model = Model
+    T extends Model = Model,
   > extends Association<S, T> {
     sourceKey?: string;
   }

@@ -24,7 +24,7 @@ type ComputedAttributes<M extends Model> = {
  */
 export function getComputedAttributes<M extends Model>(
   model?: ModelStatic<M>,
-  includedAs = model?.name
+  includedAs = model?.name,
 ): ComputedAttributes<M> {
   if (!model) {
     return {} as ComputedAttributes<M>;
@@ -35,10 +35,11 @@ export function getComputedAttributes<M extends Model>(
   return Object.keys(attributes).reduce((acc, key: keyof Attributes<M>) => {
     const meta = attributes[key];
     if (meta.type instanceof DataTypes.VIRTUAL) {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const callback = (meta.type as VirtualDataType<any>).fields;
       if (typeof callback === "function") {
         const [expression] = (callback as IncludeAsCallback)(
-          includedAs as string
+          includedAs as string,
         );
         acc[key] = expression as Literal;
       }

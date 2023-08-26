@@ -51,7 +51,7 @@ describe("getWhereOptions", () => {
             releaseDate: { [Op.between]: [from, to] },
           }),
         },
-      }
+      },
     );
 
     expect(options).to.eql({

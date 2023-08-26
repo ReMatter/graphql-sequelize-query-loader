@@ -28,13 +28,13 @@ type WhereAttributeHashOnly<TAttributes> = Extract<
  */
 const buildLiteralFilter = <T>(
   literalExpression: Literal,
-  rawValue: NonNullable<WhereAttributeHashValue<T>>
+  rawValue: NonNullable<WhereAttributeHashValue<T>>,
 ): Literal => {
   const expression = `(${literalExpression.val as string})`;
 
   if (typeof rawValue === "object") {
     const operator = Object.getOwnPropertySymbols(
-      rawValue
+      rawValue,
     )[0] as unknown as typeof Op; // getOwnPropertySymbols does not preserve the type
     // Need to type better the OperatorMap
     // @ts-expect-error Type 'OpTypes' cannot be used as an index type.
@@ -42,7 +42,7 @@ const buildLiteralFilter = <T>(
     if (operatorLiteral) {
       const escapedValue = escape(
         // @ts-expect-error Type 'OpTypes' cannot be used as an index type.
-        rawValue[operator] as Escapable | Escapable[]
+        rawValue[operator] as Escapable | Escapable[],
       );
       return literal(`${expression} ${operatorLiteral} ${escapedValue}`);
     }
@@ -68,7 +68,7 @@ const buildLiteralFilter = <T>(
 export function buildFilter<M extends Model>(
   model: ModelStatic<M>,
   filter?: WhereAttributeHashOnly<Attributes<M>>,
-  includeAs: string = model.name
+  includeAs: string = model.name,
 ): WhereOptions<M> {
   if (!filter) return [];
 
@@ -99,7 +99,7 @@ export function buildFilter<M extends Model>(
                   return buildLiteralFilter(literalMapping, innerValue);
                 return { [innerKey]: innerValue as unknown };
               }),
-            ]
+            ],
           ),
         ],
       } as WhereAttributeHash<M>;

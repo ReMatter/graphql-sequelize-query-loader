@@ -102,7 +102,7 @@ class QueryLoader {
     options?: {
       defaultSorters?: readonly (Sorter | OrderItem)[];
       customFieldFilters?: CustomFieldFilters;
-    }
+    },
   ) {
     const includeModels: ModelAssociationMap = Object.values(models).reduce(
       (acc, model) => ({
@@ -112,12 +112,12 @@ class QueryLoader {
               [association.as]: association.target,
               ...associationAcc,
             }),
-            {}
+            {},
           ),
         },
         ...acc,
       }),
-      {}
+      {},
     );
 
     const dependenciesByFieldNameByModelName = Object.values(models).reduce(
@@ -130,7 +130,7 @@ class QueryLoader {
               ...dependencyAcc,
               [columnName]: attributes.dependencies,
             }),
-            {}
+            {},
           );
 
         return {
@@ -138,7 +138,7 @@ class QueryLoader {
           [model.name]: dependenciesByFieldName,
         };
       },
-      {}
+      {},
     );
 
     this.modelsByAssociationByModelName = includeModels;
@@ -163,7 +163,7 @@ class QueryLoader {
   getFindOptions<
     M extends Model,
     E extends Record<string, Scalars>,
-    V extends Record<string, Scalars[keyof Scalars]>
+    V extends Record<string, Scalars[keyof Scalars]>,
   >(args: {
     model: ModelStatic<M>;
     info: GraphQLResolveInfo;
@@ -227,7 +227,7 @@ class QueryLoader {
           const associationModel = getIncludeModel(
             rootModel,
             associationName,
-            this.modelsByAssociationByModelName
+            this.modelsByAssociationByModelName,
           );
 
           includesWithFilter.push({
@@ -236,7 +236,7 @@ class QueryLoader {
               [Op.and]: buildFilter(
                 associationModel,
                 associationFilter,
-                associationName
+                associationName,
               ) as unknown as WhereOptions,
             },
           });
@@ -264,7 +264,7 @@ class QueryLoader {
       const expressionFilters = getSearchExpressionFilters(
         searchExpressions,
         rootModel,
-        customSearchExpressions
+        customSearchExpressions,
       );
       findOptions.where = mergeFilter(findOptions.where, expressionFilters);
     }
@@ -282,15 +282,15 @@ class QueryLoader {
             // such as sorting by nested fields, and we need to ignore them to not break the select.
             .filter(
               (o) =>
-                Array.isArray(o) && o.length === 2 && typeof o[0] === "string"
+                Array.isArray(o) && o.length === 2 && typeof o[0] === "string",
             )
             .map((field: OrderItem) => (field as [string, unknown])[0])
             .filter(
               (fieldName) =>
                 !(
                   findOptions.attributes as (string | ProjectionAlias)[]
-                ).includes(fieldName)
-            )
+                ).includes(fieldName),
+            ),
         );
       }
     }

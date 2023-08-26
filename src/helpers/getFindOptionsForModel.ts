@@ -2,6 +2,7 @@ import {
   BooleanValueNode,
   FieldNode,
   GraphQLResolveInfo,
+  Kind,
   SelectionNode,
 } from "graphql";
 import {
@@ -65,13 +66,13 @@ export function getFindOptionsForModel<M extends Model>(args: {
 
   const selectionsWithFragmentsReplaced = selections?.flatMap(
     (rawSelection) => {
-      const isFragment = rawSelection.kind === "FragmentSpread";
+      const isFragment = rawSelection.kind === Kind.FRAGMENT_SPREAD;
       return (
         isFragment
           ? fragments?.[rawSelection.name.value]?.selectionSet.selections
           : rawSelection
       ) as FieldNode;
-    }
+    },
   );
 
   const attributes = getSelectedAttributes({
@@ -95,12 +96,12 @@ export function getFindOptionsForModel<M extends Model>(args: {
     model,
     selection,
     variables,
-    customFieldFilters
+    customFieldFilters,
   );
 
   const getBooleanArgumentByName = (name: string) => {
     const argument = selection.arguments?.find(
-      (arg) => arg.name.value === name
+      (arg) => arg.name.value === name,
     );
     return (argument?.value as BooleanValueNode | null)?.value;
   };
@@ -122,11 +123,11 @@ const isFieldNode = (node: SelectionNode): node is FieldNode =>
 
 // Unwraps our paginated graphql request format
 export function unwrapPaginatedSelections(
-  field: FieldNode
+  field: FieldNode,
 ): readonly SelectionNode[] {
   const selections = (field.selectionSet?.selections ?? []) as FieldNode[];
   const edges = selections.find(
-    (selection) => selection.name.value === "edges"
+    (selection) => selection.name.value === "edges",
   );
 
   if (!edges) {

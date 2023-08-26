@@ -13,7 +13,7 @@ import { Sorter } from "../queryLoader";
 export function buildOrder<M extends Model>(
   model: ModelStatic<M>,
   sorters: readonly (OrderItem | Sorter)[],
-  customSorters?: { [key: string]: Order }
+  customSorters?: { [key: string]: Order },
 ): OrderItem[] {
   const computedAttributes = getComputedAttributes(model);
 
@@ -40,5 +40,5 @@ export function buildOrder<M extends Model>(
 export const hasComputedAttributes = (order: OrderItem[]): boolean =>
   order.some(
     (item) =>
-      Array.isArray(item) && typeof item[0] === "object" && "val" in item[0]
+      Array.isArray(item) && typeof item[0] === "object" && "val" in item[0],
   );

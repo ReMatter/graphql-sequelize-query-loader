@@ -68,7 +68,7 @@ describe("getSelectedAttributes", () => {
     > = {
       publishedBetween: ({ startDate, endDate }) =>
         Sequelize.literal(
-          `(SELECT COUNT(*) FROM article WHERE article.authorId = author.id AND article.releaseDate BETWEEN '${startDate.toLocaleDateString()}' AND '${endDate.toLocaleDateString()}')`
+          `(SELECT COUNT(*) FROM article WHERE article.authorId = author.id AND article.releaseDate BETWEEN '${startDate.toLocaleDateString()}' AND '${endDate.toLocaleDateString()}')`,
         ),
     };
 
@@ -113,7 +113,7 @@ describe("getSelectedAttributes", () => {
         "id",
         [
           literal(
-            `(SELECT COUNT(*) FROM article WHERE article.authorId = author.id AND article.releaseDate BETWEEN '${startDate.toLocaleDateString()}' AND '${endDate.toLocaleDateString()}')`
+            `(SELECT COUNT(*) FROM article WHERE article.authorId = author.id AND article.releaseDate BETWEEN '${startDate.toLocaleDateString()}' AND '${endDate.toLocaleDateString()}')`,
           ),
           "publishedBetween",
         ],
@@ -121,7 +121,7 @@ describe("getSelectedAttributes", () => {
 
       assert.sameDeepMembers(
         selectedAttributes as unknown[],
-        expectedAttributes
+        expectedAttributes,
       );
     });
   });

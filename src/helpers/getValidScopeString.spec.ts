@@ -11,7 +11,7 @@ describe("getValidScopeString", () => {
     } catch (error) {
       if (error instanceof Error) {
         expect(error.message).to.equal(
-          `Incorrect Parts supplied for scope: ${scopeString}`
+          `Incorrect Parts supplied for scope: ${scopeString}`,
         );
       } else {
         expect.fail("Error is not an instance of Error");
@@ -24,7 +24,7 @@ describe("getValidScopeString", () => {
     } catch (error) {
       if (error instanceof Error) {
         expect(error.message).to.equal(
-          `Incorrect Parts supplied for scope: ${scopeString}`
+          `Incorrect Parts supplied for scope: ${scopeString}`,
         );
       } else {
         expect.fail("Error is not an instance of Error");

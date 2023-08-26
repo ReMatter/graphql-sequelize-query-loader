@@ -42,7 +42,7 @@ describe("buildFilter", () => {
     });
     expect(filter).to.eql([
       literal(
-        "((SELECT COUNT(*) FROM article WHERE article.authorId = Author.id)) > 5"
+        "((SELECT COUNT(*) FROM article WHERE article.authorId = Author.id)) > 5",
       ),
     ]);
   });
@@ -53,7 +53,7 @@ describe("buildFilter", () => {
           SELECT 1
           FROM comment
           WHERE comment.articleId = 5
-        )`
+        )`,
     );
 
     const filter = buildFilter(ArticleModel, {

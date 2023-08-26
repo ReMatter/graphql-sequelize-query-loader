@@ -38,7 +38,7 @@ const getComputedQueryVariables = (fieldNode: FieldNode) =>
 export function getSelectedAttributes<
   M extends Model,
   E extends Record<string, Scalars>,
-  V extends Record<string, Scalars[keyof Scalars]>
+  V extends Record<string, Scalars[keyof Scalars]>,
 >(args: {
   model: ModelStatic<M>;
   selections: ReadonlyArray<SelectionNode> | undefined;
