@@ -4,7 +4,7 @@ Convert GraphQL Query to query options for Sequelize models facilitating eagerlo
 
 [![codecov](https://codecov.io/gh/jsamchineme/graphql-sequelize-query-loader/branch/master/graph/badge.svg)](https://codecov.io/gh/jsamchineme/graphql-sequelize-query-loader)
 [![Build Status](https://travis-ci.com/jsamchineme/graphql-sequelize-query-loader.svg?branch=master)](https://travis-ci.com/jsamchineme/graphql-sequelize-query-loader)
-[![codebeat badge](https://codebeat.co/badges/0c5b767b-a1e4-4f4f-9feb-5911690d1077)](https://codebeat.co/projects/github-com-jsamchineme-graphql-sequelize-query-loader-master)
+[![codebeat badge](https://codebeat.co/badges/f8f989b2-ffc6-4400-a10b-c4e0092c09ba)](https://codebeat.co/projects/github-com-agiletiger-graphql-sequelize-query-loader-master)
 [![License](https://badgen.net/github/license/jsamchineme/graphql-sequelize-query-loader)](https://github.com/jsamchineme/graphql-sequelize-query-loader/blob/master/LICENCE)
 
 ### Overview
