@@ -8,7 +8,7 @@ import {
 import { Model, ModelStatic, WhereOptions } from "sequelize";
 import { getValidScopeString } from "./getValidScopeString";
 import * as Op from "sequelize/lib/operators";
-import { CustomFieldFilters } from "../queryLoader";
+import { CustomFieldFilters } from "../QueryLoader";
 
 // This type is needed because ValueNode is a Union type and not all of its members have a 'value' property
 type MaterializedValueNode = ValueNode & { value: number | boolean | string };

@@ -7,7 +7,7 @@ import ArticleModel from "../test/models/Article";
 import CommentModel from "../test/models/Comment";
 import AuthorModel from "../test/models/Author";
 import CategoryModel from "../test/models/Category";
-import QueryLoader from "./queryLoader";
+import QueryLoader from "./QueryLoader";
 import { getGraphQLResolveInfo } from "../test/utils/getGraphQLResolveInfo";
 
 describe("QueryLoader", () => {

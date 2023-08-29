@@ -9,7 +9,7 @@ import {
 
 import { getComputedAttributes } from "./getComputedAttributes";
 import { escape } from "sequelize/lib/sql-string";
-import { SearchExpression } from "../queryLoader";
+import { SearchExpression } from "../QueryLoader";
 
 export type CustomSearchExpressions<M extends Model> = {
   [name: string]:

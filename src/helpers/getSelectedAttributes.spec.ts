@@ -7,7 +7,7 @@ import ArticleModel from "../../test/models/Article";
 import { getSelectedAttributes } from "./getSelectedAttributes";
 import { Sequelize, literal } from "sequelize";
 import AuthorModel from "../../test/models/Author";
-import { ComputedQueries, Scalars } from "../queryLoader";
+import { ComputedQueries, Scalars } from "../QueryLoader";
 
 const selections: ReadonlyArray<SelectionNode> = [
   {

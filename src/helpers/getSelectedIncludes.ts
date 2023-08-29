@@ -6,7 +6,7 @@ import {
   CustomFieldFilters,
   DependenciesByFieldNameByModelName,
   ModelAssociationMap,
-} from "../queryLoader";
+} from "../QueryLoader";
 
 /**
  * Return an array of all the includes to be carried out
