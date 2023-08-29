@@ -2,7 +2,7 @@
 
 Convert GraphQL Query to query options for Sequelize models facilitating eagerloading of associated resources.
 
-[![codecov](https://codecov.io/gh/jsamchineme/graphql-sequelize-query-loader/branch/master/graph/badge.svg)](https://codecov.io/gh/jsamchineme/graphql-sequelize-query-loader)
+[![codecov](https://codecov.io/gh/agiletiger/graphql-sequelize-query-loader/graph/badge.svg?token=H73YX8P22N)](https://codecov.io/gh/agiletiger/graphql-sequelize-query-loader)
 [![Build Status](https://travis-ci.com/jsamchineme/graphql-sequelize-query-loader.svg?branch=master)](https://travis-ci.com/jsamchineme/graphql-sequelize-query-loader)
 [![codebeat badge](https://codebeat.co/badges/f8f989b2-ffc6-4400-a10b-c4e0092c09ba)](https://codebeat.co/projects/github-com-agiletiger-graphql-sequelize-query-loader-master)
 [![License](https://badgen.net/github/license/jsamchineme/graphql-sequelize-query-loader)](https://github.com/jsamchineme/graphql-sequelize-query-loader/blob/master/LICENCE)
